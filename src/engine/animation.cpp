@@ -7,6 +7,8 @@ void Animation::load(SDL_Renderer* ren, const char* path)
 
 void Animation::update(float delta)
 {
+    if (m_frameTime == 0.0f) return;
+    
     m_timer += delta;
 
     if (m_timer >= m_frameTime)

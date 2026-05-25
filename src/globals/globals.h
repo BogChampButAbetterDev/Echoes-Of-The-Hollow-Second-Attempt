@@ -10,4 +10,4 @@
 #define TEXT_SIZE_DEFAULT 35
 
 #define MAP_RENDER_SCALE 3
-static constexpr int SPRITE_RENDER_SCALE = 2;
+static constexpr int SPRITE_RENDER_SCALE = 3;

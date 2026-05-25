@@ -34,7 +34,7 @@ Player& Player::operator=(const Player& other)
 
 Player::Player(SDL_Renderer* ren, v2 pos)
 : x(pos.x), y(pos.y),
-  tex(Texture().loadTex(ren, PLAYER_PATH("idle.png"))),
+  tex(Texture().loadTex(ren, PLAYER_PATH("player.png"))),
   stat(DIR_STATES::DOWN),
   currentAnim(nullptr)
 {
@@ -179,55 +179,79 @@ void Player::matchAnimation()
 
 void Player::addFrames(SDL_Renderer* ren)
 {
-    idleUp.load(ren, PLAYER_PATH("idle.png"));
+    idleUp.load(ren, PLAYER_PATH("player.png"));
     idleUp.setFrameTime(0.0f);
-    idleUp.addFrame({24, 212, 19, 27});
+    idleUp.addFrame({5, 28, 14, 16});
 
-    idleDown.load(ren, PLAYER_PATH("idle.png"));
+    idleDown.load(ren, PLAYER_PATH("player.png"));
     idleDown.setFrameTime(0.0f);
-    idleDown.addFrame({22, 22, 18, 26});
+    idleDown.addFrame({5, 4, 14, 16});
 
-    idleLeft.load(ren, PLAYER_PATH("idle.png"));
+    idleLeft.load(ren, PLAYER_PATH("player.png"));
     idleLeft.setFrameTime(0.0f);
-    idleLeft.addFrame({22, 83, 17, 28});
+    idleLeft.addFrame({7, 76, 10, 16});
 
-    idleRight.load(ren, PLAYER_PATH("idle.png"));
+    idleRight.load(ren, PLAYER_PATH("player.png"));
     idleRight.setFrameTime(0.0f);
-    idleRight.addFrame({24, 147, 17, 28});
+    idleRight.addFrame({7, 52, 10, 16});
 
-    walkDown.load(ren, PLAYER_PATH("walk.png"));
-    walkDown.setFrameTime(0.1f);
-    walkDown.addFrame({20, 21, 19, 26});
-    walkDown.addFrame({84, 19, 19, 28});
-    walkDown.addFrame({148, 19, 19, 28});
-    walkDown.addFrame({213, 21, 18, 26});
-    walkDown.addFrame({278, 19, 17, 28});
-    walkDown.addFrame({342, 20, 17, 27});
+    walkDown.load(ren, PLAYER_PATH("player.png"));
+    walkDown.setFrameTime(0.07f);
+    walkDown.addFrame({5, 4, 14, 16});
+    walkDown.addFrame({30, 4, 13, 17});
+    walkDown.addFrame({55, 5, 11, 17});
+    walkDown.addFrame({79, 6, 11, 16});
+    walkDown.addFrame({103, 5, 11, 17});
+    walkDown.addFrame({126, 4, 13, 17});
+    walkDown.addFrame({149, 4, 14, 16});
+    walkDown.addFrame({173, 4, 13, 17});
+    walkDown.addFrame({198, 5, 11, 17});
+    walkDown.addFrame({222, 6, 11, 17});
+    walkDown.addFrame({246, 5, 11, 17});
+    walkDown.addFrame({269, 4, 13, 17});
 
-    walkLeft.load(ren, PLAYER_PATH("walk.png"));
-    walkLeft.setFrameTime(0.1f);
-    walkLeft.addFrame({20, 81, 19, 26});
-    walkLeft.addFrame({84, 81, 19, 28});
-    walkLeft.addFrame({148, 81, 19, 28});
-    walkLeft.addFrame({213, 81, 18, 26});
-    walkLeft.addFrame({278, 81, 17, 28});
-    walkLeft.addFrame({342, 81, 17, 27});
+    walkLeft.load(ren, PLAYER_PATH("player.png"));
+    walkLeft.setFrameTime(0.07f);
+    walkLeft.addFrame({5, 76, 14, 16});
+    walkLeft.addFrame({30, 76, 13, 17});
+    walkLeft.addFrame({55, 76, 11, 17});
+    walkLeft.addFrame({79, 76, 11, 16});
+    walkLeft.addFrame({103, 76, 11, 17});
+    walkLeft.addFrame({126, 76, 13, 17});
+    walkLeft.addFrame({149, 76, 14, 16});
+    walkLeft.addFrame({173, 76, 13, 17});
+    walkLeft.addFrame({198, 76, 11, 17});
+    walkLeft.addFrame({222, 76, 11, 17});
+    walkLeft.addFrame({246, 76, 11, 17});
+    walkLeft.addFrame({269, 76, 13, 17});
 
-    walkRight.load(ren, PLAYER_PATH("walk.png"));
-    walkRight.setFrameTime(0.1f);
-    walkRight.addFrame({20, 144, 19, 26});
-    walkRight.addFrame({84, 144, 19, 28});
-    walkRight.addFrame({148, 144, 19, 28});
-    walkRight.addFrame({213, 144, 18, 26});
-    walkRight.addFrame({278, 144, 17, 28});
-    walkRight.addFrame({342, 144, 17, 27});
+    walkRight.load(ren, PLAYER_PATH("player.png"));
+    walkRight.setFrameTime(0.07f);
+    walkRight.addFrame({5, 52, 14, 16});
+    walkRight.addFrame({30, 52, 13, 17});
+    walkRight.addFrame({55, 52, 11, 17});
+    walkRight.addFrame({79, 52, 11, 16});
+    walkRight.addFrame({103, 52, 11, 17});
+    walkRight.addFrame({126, 52, 13, 17});
+    walkRight.addFrame({149, 52, 14, 16});
+    walkRight.addFrame({173, 52, 13, 17});
+    walkRight.addFrame({198, 52, 11, 17});
+    walkRight.addFrame({222, 52, 11, 17});
+    walkRight.addFrame({246, 52, 11, 17});
+    walkRight.addFrame({269, 52, 13, 17});
 
-    walkUp.load(ren, PLAYER_PATH("walk.png"));
-    walkUp.setFrameTime(0.1f);
-    walkUp.addFrame({20, 211, 19, 26});
-    walkUp.addFrame({84, 211, 19, 28});
-    walkUp.addFrame({148, 211, 19, 28});
-    walkUp.addFrame({213, 211, 18, 26});
-    walkUp.addFrame({278, 211, 17, 28});
-    walkUp.addFrame({342, 211, 17, 27});
+    walkUp.load(ren, PLAYER_PATH("player.png"));
+    walkUp.setFrameTime(0.07f);
+    walkUp.addFrame({5, 28, 14, 16});
+    walkUp.addFrame({30, 28, 13, 17});
+    walkUp.addFrame({55, 28, 11, 17});
+    walkUp.addFrame({79, 28, 11, 16});
+    walkUp.addFrame({103, 28, 11, 17});
+    walkUp.addFrame({126, 28, 13, 17});
+    walkUp.addFrame({149, 28, 14, 16});
+    walkUp.addFrame({173, 28, 13, 17});
+    walkUp.addFrame({198, 28, 11, 17});
+    walkUp.addFrame({222, 28, 11, 17});
+    walkUp.addFrame({246, 28, 11, 17});
+    walkUp.addFrame({269, 28, 13, 17});
 }
