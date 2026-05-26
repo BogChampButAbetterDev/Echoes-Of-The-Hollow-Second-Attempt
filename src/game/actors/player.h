@@ -29,6 +29,10 @@ public:
     idleLeft(other.idleLeft), idleRight(other.idleRight),
     walkUp(other.walkUp), walkDown(other.walkDown),
     walkLeft(other.walkLeft), walkRight(other.walkRight),
+    attackUp(other.attackUp), attackDown(other.attackDown),
+    attackLeft(other.attackLeft), attackRight(other.attackRight),
+    ssUp(other.ssUp), ssDown(other.ssDown),
+    ssLeft(other.ssLeft), ssRight(other.ssRight),
     input(other.input)
     {
         if (other.currentAnim == &other.idleUp)         currentAnim = &idleUp;
@@ -39,6 +43,10 @@ public:
         else if (other.currentAnim == &other.walkDown)  currentAnim = &walkDown;
         else if (other.currentAnim == &other.walkLeft)  currentAnim = &walkLeft;
         else if (other.currentAnim == &other.walkRight) currentAnim = &walkRight;
+        else if (other.currentAnim == &other.attackUp)  currentAnim = &attackUp;
+        else if (other.currentAnim == &other.attackDown)currentAnim = &attackDown;
+        else if (other.currentAnim == &other.ssLeft)currentAnim = &ssLeft;
+        else if (other.currentAnim == &other.ssRight)currentAnim = &ssRight;
         else currentAnim = nullptr;
     }
     Player() : x(0), y(0), tex(nullptr), m_src{0,0,0,0},
@@ -76,5 +84,13 @@ private:
     Animation walkDown;
     Animation walkLeft;
     Animation walkRight;
+    Animation attackUp;
+    Animation attackDown;
+    Animation attackLeft;
+    Animation attackRight;
+    Animation ssUp; // sword swing : ss
+    Animation ssDown;
+    Animation ssLeft;
+    Animation ssRight;
     Animation* currentAnim;  // pointer to whichever is active
 };

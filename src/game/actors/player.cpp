@@ -18,6 +18,14 @@ Player& Player::operator=(const Player& other)
     walkDown = other.walkDown;
     walkLeft = other.walkLeft; 
     walkRight = other.walkRight;
+    attackUp = other.attackUp;
+    attackDown = other.attackDown;
+    attackLeft = other.attackLeft;
+    attackRight = other.attackRight;
+    ssUp = other.ssUp;
+    ssDown = other.ssDown;
+    ssLeft = other.ssLeft;
+    ssRight = other.ssRight;
 
     if (other.currentAnim == &other.idleUp)         currentAnim = &idleUp;
     else if (other.currentAnim == &other.idleDown)  currentAnim = &idleDown;
@@ -27,6 +35,14 @@ Player& Player::operator=(const Player& other)
     else if (other.currentAnim == &other.walkDown)  currentAnim = &walkDown;
     else if (other.currentAnim == &other.walkLeft)  currentAnim = &walkLeft;
     else if (other.currentAnim == &other.walkRight) currentAnim = &walkRight;
+    else if (other.currentAnim == &other.attackUp)  currentAnim = &attackUp;
+    else if (other.currentAnim == &other.attackDown)currentAnim = &attackDown;
+    else if (other.currentAnim == &other.attackLeft)currentAnim = &attackLeft;
+    else if (other.currentAnim == &other.attackRight)currentAnim = &attackRight;
+    else if (other.currentAnim == &other.ssUp)  currentAnim = &ssUp;
+    else if (other.currentAnim == &other.ssDown)currentAnim = &ssDown;
+    else if (other.currentAnim == &other.ssLeft)currentAnim = &ssLeft;
+    else if (other.currentAnim == &other.ssRight)currentAnim = &ssRight;
     else currentAnim = nullptr;
 
     return *this;
@@ -254,4 +270,60 @@ void Player::addFrames(SDL_Renderer* ren)
     walkUp.addFrame({222, 28, 11, 17});
     walkUp.addFrame({246, 28, 11, 17});
     walkUp.addFrame({269, 28, 13, 17});
+
+    attackUp.load(ren, PLAYER_PATH("player.png"));
+    attackUp.setFrameTime(0.07f);
+    attackUp.addFrame({5, 100, 14, 16});
+    attackUp.addFrame({30, 100, 13, 16});
+    attackUp.addFrame({55, 101, 11, 15});
+    attackUp.addFrame({79, 101, 10, 17});
+    attackUp.addFrame({102, 100, 11, 17});
+
+    attackDown.load(ren, PLAYER_PATH("player.png"));
+    attackDown.setFrameTime(0.07f);
+    attackDown.addFrame({5, 124, 14, 16});
+    attackDown.addFrame({30, 124, 13, 16});
+    attackDown.addFrame({54, 125, 13, 17});
+    attackDown.addFrame({79, 126, 12, 15});
+    attackDown.addFrame({103, 125, 13, 16});
+
+    attackLeft.load(ren, PLAYER_PATH("player.png"));
+    attackLeft.setFrameTime(0.07f);
+    attackLeft.addFrame({7, 148, 10, 16});
+    attackLeft.addFrame({31, 148, 10, 16});
+    attackLeft.addFrame({56, 148, 10, 16});
+    attackLeft.addFrame({79, 148, 11, 16});
+    attackLeft.addFrame({102, 148, 12, 15});
+
+    ssUp.load(ren, PLAYER_PATH("player.png"));
+    ssUp.setFrameTime(0.07f);
+    ssUp.addFrame({8, 222, 11, 11});
+    ssUp.addFrame({31, 219, 13, 13});
+    ssUp.addFrame({54, 220, 11, 13});
+    ssUp.addFrame({77, 221, 12, 12});
+    ssUp.addFrame({101, 222, 11, 11});
+
+    ssDown.load(ren, PLAYER_PATH("player.png"));
+    ssDown.setFrameTime(0.07f);
+    ssDown.addFrame({8, 199, 11, 11});
+    ssDown.addFrame({31, 199, 13, 13});
+    ssDown.addFrame({54, 199, 11, 13});
+    ssDown.addFrame({77, 199, 12, 12});
+    ssDown.addFrame({101, 199, 11, 11});
+
+    ssLeft.load(ren, PLAYER_PATH("player.png"));
+    ssLeft.setFrameTime(0.07f);
+    ssLeft.addFrame({8, 272, 11, 11});
+    ssLeft.addFrame({31, 272, 13, 13});
+    ssLeft.addFrame({54, 272, 11, 13});
+    ssLeft.addFrame({77, 272, 12, 12});
+    ssLeft.addFrame({101, 272, 11, 11});
+
+    ssRight.load(ren, PLAYER_PATH("player.png"));
+    ssRight.setFrameTime(0.07f);
+    ssRight.addFrame({8, 248, 11, 11});
+    ssRight.addFrame({31, 248, 13, 13});
+    ssRight.addFrame({54, 248, 11, 13});
+    ssRight.addFrame({77, 248, 12, 12});
+    ssRight.addFrame({101, 248, 11, 11});
 }
