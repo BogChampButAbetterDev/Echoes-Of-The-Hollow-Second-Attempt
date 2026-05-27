@@ -2,6 +2,7 @@
 #include "renderer/renderer.h"
 #include "engine/tilemap.h"
 #include "engine/scene.h"
+#include "engine/scenemanager.h"
 #include "engine/font.h"
 #include "engine/ui.h"
 #include "actors/player.h"
@@ -12,6 +13,8 @@ public:
     Game();
     void mainLoop();
     void end();
+
+    void loadScene(const std::string& mapId, const std::string& spawnName);
 
 private:
     SDL_Window* createWin();
@@ -26,6 +29,7 @@ private:
     float m_fpsTimer;
     int m_frameCount;
 
+    SceneManager m_sm;
     Scene* m_currentScene;
     std::unordered_map<std::string, Scene> m_scenes;
 
@@ -39,25 +43,11 @@ private:
     void checkInteraction();
     void checkContact();
 
-    void loadScene(const std::string& mapId, const std::string& spawnName);
     void checkDoorTransitions();
 
-    enum class FadeState 
-    {
-        NONE,
-        FADING_OUT,
-        FADING_IN
-    };
-    FadeState m_fadestat = FadeState::NONE;
-    int m_fadeAlpha = 0;
     float fadeSpeed = 200.0f;
     int fadeDirection = 0;
 
-    bool shouldLoadScene = false;
-    std::string m_pendingMap;
-    std::string m_pendingSpawn;
-
-    void startTransition(const std::string& mapId, const std::string& spawnName);
     void updateFade();
 
     SDL_Texture* m_dialogueTex;

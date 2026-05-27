@@ -10,6 +10,7 @@ running(true),
 lastTime(0),
 delta(0),
 m_currentScene(nullptr),
+m_sm(nullptr),
 m_cam(Camera(SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0)),
 m_font(nullptr),
 m_dialogueTex(nullptr),
@@ -21,6 +22,7 @@ m_frameCount(0)
     Font::init();
     m_win = createWin();
     m_ren = Render(m_win);
+    m_sm = SceneManager(m_ren.renderer);
     lastTime = SDL_GetPerformanceCounter();
 
     init();
@@ -129,52 +131,10 @@ void Game::checkDoorTransitions()
 
         if (dist < radius)
         {
-            startTransition(door->toMap, door->toSpawn);
+            m_sm.requestScene(door->toMap, door->toSpawn);
             return;
         }
     }
-}
-
-void Game::startTransition(const std::string &mapId, const std::string &spawnName)
-{
-    if (m_fadestat != FadeState::NONE) return;
-    m_pendingMap   = mapId;
-    m_pendingSpawn = spawnName;
-    m_fadestat     = FadeState::FADING_OUT;
-    m_fadeAlpha    = 0;
-}
-
-void Game::updateFade()
-{
-    if (m_fadestat == FadeState::NONE) return;
-
-    if (m_fadestat == FadeState::FADING_OUT)
-    {
-        fadeDirection = 1;
-        m_fadeAlpha += fadeDirection * fadeSpeed * delta;
-        if (m_fadeAlpha >= 255)
-        {
-            m_fadeAlpha = 255;
-            //loadScene(m_pendingMap, m_pendingSpawn);
-            shouldLoadScene = true;
-            m_fadestat = FadeState::FADING_IN;
-        }
-    }
-    else if (m_fadestat == FadeState::FADING_IN)
-    {
-        fadeDirection = -1;
-        m_fadeAlpha += fadeDirection * fadeSpeed * delta;
-        if (m_fadeAlpha <= 0)
-        {
-            m_fadeAlpha = 0;
-            m_fadestat = FadeState::NONE;
-        }
-    }
-
-    SDL_SetRenderDrawBlendMode(m_ren.renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(m_ren.renderer, 0,0,0, m_fadeAlpha);
-    SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-    SDL_RenderFillRect(m_ren.renderer, &overlay);
 }
 
 void Game::loadScene(const std::string& mapId, const std::string& spawnName)
@@ -226,7 +186,6 @@ void Game::loadScene(const std::string& mapId, const std::string& spawnName)
         m_player.setPosition(it->second.x, it->second.y);
     else
     {
-        std::cout << "Spawn point not found: " << spawnName << ", using 0,0\n";
         m_player.setPosition(0, 0);
     }
 
@@ -279,12 +238,14 @@ void Game::mainLoop()
             m_player.getX() * MAP_RENDER_SCALE,
             m_player.getY() * MAP_RENDER_SCALE);
 
-        if (!m_ui.isDialogueOpen() && !m_cam.inCutscene && m_fadestat == FadeState::NONE)
+        if (!m_ui.isDialogueOpen() && !m_cam.inCutscene && !m_sm.isTransitioning())
         {
             m_player.update(delta, m_cam, solids);
             checkContact();
             checkDoorTransitions();
         }
+
+        m_sm.update(delta, *this);
 
         m_ren.beginFrame();
         m_currentScene->map.renderGround(m_ren.renderer, m_cam);
@@ -293,12 +254,7 @@ void Game::mainLoop()
         m_ren.renderFromQueue();
         m_currentScene->map.renderOverhead(m_ren.renderer, m_cam);
         m_ui.render(m_ren.renderer);
-        updateFade();
-        if (shouldLoadScene)
-        {
-            loadScene(m_pendingMap, m_pendingSpawn);
-            shouldLoadScene = false;
-        }
+        m_sm.render(m_ren.renderer); // render fade
 
         #if USING_CONTROLLER
             if (m_player.input.noControllerWarning)
