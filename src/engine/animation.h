@@ -22,7 +22,7 @@ public:
     inline bool isFinished() const {return m_frameTime > 0.0f && m_currentFrame == (int)m_frames.size() - 1;}
 
     bool m_loops;
-    inline bool setLooping(bool loops) {m_loops = loops;}
+    inline void setLooping(bool loops) {m_loops = loops;}
 
     inline void syncFrame(int frame) { m_currentFrame = std::clamp(frame, 0, (int)m_frames.size()-1); }
     inline int getCurrentFrameIndex() const { return m_currentFrame; }
