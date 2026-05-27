@@ -148,11 +148,39 @@ void Player::move(float delta, const std::vector<SDL_Rect>& solids)
     float speed = 30.0f * MAP_RENDER_SCALE;
     float dx = 0, dy = 0;
 
-    if      (input.w) { dy = -speed * delta; moving = true; stat = DIR_STATES::UP; }
-    else if (input.s) { dy =  speed * delta; moving = true; stat = DIR_STATES::DOWN; }
-    else if (input.a) { dx = -speed * delta; moving = true; stat = DIR_STATES::LEFT; }
-    else if (input.d) { dx =  speed * delta; moving = true; stat = DIR_STATES::RIGHT; }
-    else              { moving = false; }
+    // --- analog stick: free 8-dir movement ---
+    if (std::abs(input.axisX) > 0.0f || std::abs(input.axisY) > 0.0f)
+    {
+        dx = input.axisX * speed * delta;
+        dy = input.axisY * speed * delta;
+        moving = true;
+
+        // facing: pick whichever axis is dominant
+        if (std::abs(input.axisX) >= std::abs(input.axisY))
+            stat = (input.axisX > 0) ? DIR_STATES::RIGHT : DIR_STATES::LEFT;
+        else
+            stat = (input.axisY > 0) ? DIR_STATES::DOWN  : DIR_STATES::UP;
+    }
+    // --- digital fallback (keyboard or d-pad) ---
+    else if (input.w || input.a || input.s || input.d)
+    {
+        if (input.w) { dy = -speed * delta; stat = DIR_STATES::UP; }
+        if (input.s) { dy =  speed * delta; stat = DIR_STATES::DOWN; }
+        if (input.a) { dx = -speed * delta; stat = DIR_STATES::LEFT; }
+        if (input.d) { dx =  speed * delta; stat = DIR_STATES::RIGHT; }
+        moving = true;
+
+        // normalize diagonals
+        if (dx != 0 && dy != 0)
+        {
+            dx *= 0.7071f;
+            dy *= 0.7071f;
+        }
+    }
+    else
+    {
+        moving = false;
+    }
 
     int pw = m_src.w * SPRITE_RENDER_SCALE;
     int ph = m_src.h * SPRITE_RENDER_SCALE;

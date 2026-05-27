@@ -17,7 +17,7 @@ m_fps(0),
 m_fpsTimer(0),
 m_frameCount(0)
 {
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_EVERYTHING);
     Font::init();
     m_win = createWin();
     m_ren = Render(m_win);
@@ -292,6 +292,37 @@ void Game::mainLoop()
         m_currentScene->map.renderOverhead(m_ren.renderer, m_cam);
         m_ui.render(m_ren.renderer);
         updateFade();
+
+        #if USING_CONTROLLER
+            if (m_player.input.noControllerWarning)
+            {
+                SDL_Rect shadow = {SCREEN_WIDTH/2 - 99, SCREEN_HEIGHT - 50, 198, 35};
+                SDL_SetRenderDrawBlendMode(m_ren.renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(m_ren.renderer, 0, 0, 0, 160);
+                SDL_RenderFillRect(m_ren.renderer, &shadow);
+                
+                // warning text
+                std::string text = "NO CONTROLLER";
+                SDL_Color color = {255, 0, 0, 255};
+
+                SDL_Texture* tex = m_font->renderText(m_ren.renderer, text, color, 300);
+
+                int w, h;
+                SDL_QueryTexture(tex, NULL, NULL, &w, &h);
+
+                SDL_Rect dst =
+                {
+                    SCREEN_WIDTH / 2 - w / 2,
+                    SCREEN_HEIGHT - 50,
+                    w,
+                    h
+                };
+
+                SDL_RenderCopy(m_ren.renderer, tex, NULL, &dst);
+                SDL_DestroyTexture(tex);
+            }
+        #endif
+
         m_ren.presentFrame();
     }
 }
