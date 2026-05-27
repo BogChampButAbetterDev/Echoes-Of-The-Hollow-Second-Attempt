@@ -6,8 +6,6 @@
 #include "engine/ui.h"
 #include "actors/player.h"
 
-#define SCREEN_FADE_SPEED 2
-
 class Game
 {
 public:
@@ -52,7 +50,10 @@ private:
     };
     FadeState m_fadestat = FadeState::NONE;
     int m_fadeAlpha = 0;
+    float fadeSpeed = 200.0f;
+    int fadeDirection = 0;
 
+    bool shouldLoadScene = false;
     std::string m_pendingMap;
     std::string m_pendingSpawn;
 

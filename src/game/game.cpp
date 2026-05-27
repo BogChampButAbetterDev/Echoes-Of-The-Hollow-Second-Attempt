@@ -150,18 +150,20 @@ void Game::updateFade()
 
     if (m_fadestat == FadeState::FADING_OUT)
     {
-        m_fadeAlpha += SCREEN_FADE_SPEED;
+        fadeDirection = 1;
+        m_fadeAlpha += fadeDirection * fadeSpeed * delta;
         if (m_fadeAlpha >= 255)
         {
             m_fadeAlpha = 255;
-            // load next scene when fade out completes;
-            loadScene(m_pendingMap, m_pendingSpawn);
+            //loadScene(m_pendingMap, m_pendingSpawn);
+            shouldLoadScene = true;
             m_fadestat = FadeState::FADING_IN;
         }
     }
     else if (m_fadestat == FadeState::FADING_IN)
     {
-        m_fadeAlpha -= SCREEN_FADE_SPEED;
+        fadeDirection = -1;
+        m_fadeAlpha += fadeDirection * fadeSpeed * delta;
         if (m_fadeAlpha <= 0)
         {
             m_fadeAlpha = 0;
@@ -292,6 +294,11 @@ void Game::mainLoop()
         m_currentScene->map.renderOverhead(m_ren.renderer, m_cam);
         m_ui.render(m_ren.renderer);
         updateFade();
+        if (shouldLoadScene)
+        {
+            loadScene(m_pendingMap, m_pendingSpawn);
+            shouldLoadScene = false;
+        }
 
         #if USING_CONTROLLER
             if (m_player.input.noControllerWarning)
