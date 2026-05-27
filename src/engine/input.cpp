@@ -15,5 +15,6 @@ void pollInput(Input& input, bool& running)
     input.s         = keys[SDL_SCANCODE_S];
     input.d         = keys[SDL_SCANCODE_D];
     input.interact  = keys[SDL_SCANCODE_SPACE];
+    input.attack    = keys[SDL_SCANCODE_K];
     input.escape    = keys[SDL_SCANCODE_ESCAPE];
 }

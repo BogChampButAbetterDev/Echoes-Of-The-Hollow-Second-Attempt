@@ -9,6 +9,11 @@ typedef struct Vector2
     float y;
 } v2;
 
+typedef struct integerVector2
+{
+    int x, y;
+} v2i;
+
 struct SpawnPoint
 {
     std::string name = "";

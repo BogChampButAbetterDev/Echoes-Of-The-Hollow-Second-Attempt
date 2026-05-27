@@ -14,7 +14,16 @@ void Animation::update(float delta)
     if (m_timer >= m_frameTime)
     {
         m_timer = 0.0f;
-        m_currentFrame = (m_currentFrame + 1) % m_frames.size();
+        int next = m_currentFrame + 1;
+        if (next >= (int)m_frames.size())
+        {
+            if (m_loops) m_currentFrame = 0;
+        }
+        else 
+        {
+            m_currentFrame = next;
+        }
+        //m_currentFrame = (m_currentFrame + 1) % m_frames.size();
     }
 }
 

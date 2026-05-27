@@ -24,7 +24,8 @@ public:
 
     Player(const Player& other)
     : x(other.x), y(other.y), tex(other.tex), m_src(other.m_src),
-    moving(other.moving), stat(other.stat),
+    moving(other.moving), stat(other.stat), m_attacking(other.m_attacking),
+    m_attackTimer(other.m_attackTimer),
     idleUp(other.idleUp), idleDown(other.idleDown),
     idleLeft(other.idleLeft), idleRight(other.idleRight),
     walkUp(other.walkUp), walkDown(other.walkDown),
@@ -47,11 +48,11 @@ public:
         else if (other.currentAnim == &other.attackDown)currentAnim = &attackDown;
         else if (other.currentAnim == &other.ssLeft)currentAnim = &ssLeft;
         else if (other.currentAnim == &other.ssRight)currentAnim = &ssRight;
-        else currentAnim = nullptr;
+        else {currentAnim = nullptr; m_swordAnim = nullptr;}
     }
     Player() : x(0), y(0), tex(nullptr), m_src{0,0,0,0},
            moving(false), stat(DIR_STATES::DOWN),
-           currentAnim(nullptr) {}
+           currentAnim(nullptr), m_swordAnim(nullptr) {}
     Player& operator=(const Player& other); 
     Player(SDL_Renderer* ren, v2 pos);
 
@@ -71,6 +72,9 @@ private:
     float x, y;
     bool moving;
     DIR_STATES stat; 
+
+    bool m_attacking = false;
+    float m_attackTimer = 0.0f;
 
     void move(float delta, const std::vector<SDL_Rect>& solids);
     void matchAnimation();
@@ -93,4 +97,5 @@ private:
     Animation ssLeft;
     Animation ssRight;
     Animation* currentAnim;  // pointer to whichever is active
+    Animation* m_swordAnim; 
 };

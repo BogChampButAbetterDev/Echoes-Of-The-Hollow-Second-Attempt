@@ -1,5 +1,18 @@
 #include "player.h"
 
+// Hand offsets (in sprite pixels, pre-scale) per direction per frame
+// Format: {sword_dx, sword_dy} from the player's top-left corner
+static const v2i swordOffsets[4][5] = {
+    // UP    (5 frames)
+    {{5, -2}, {5, -4}, {4, -6}, {3, -4}, {5, -1}},
+    // DOWN
+    {{-1, 10}, {-1, 12},  {-2, 12},  {-3, 10},  {-1, 10}},
+    // LEFT
+    {{-7, 4},{-9, 4}, {-9, 3}, {-7, 3},  {-7, 4}},
+    // RIGHT
+    {{5, 7}, {7, 7},  {7, 6},  {5, 6},   {5, 7}},
+};
+
 Player& Player::operator=(const Player& other)
 {
     if (this == &other) return *this;
@@ -9,6 +22,8 @@ Player& Player::operator=(const Player& other)
     moving = other.moving;
     stat = other.stat;
     input = other.input;
+    m_attacking = other.m_attacking;
+    m_attackTimer = other.m_attackTimer;
 
     idleUp = other.idleUp;
     idleDown = other.idleDown;
@@ -43,7 +58,7 @@ Player& Player::operator=(const Player& other)
     else if (other.currentAnim == &other.ssDown)currentAnim = &ssDown;
     else if (other.currentAnim == &other.ssLeft)currentAnim = &ssLeft;
     else if (other.currentAnim == &other.ssRight)currentAnim = &ssRight;
-    else currentAnim = nullptr;
+    else {currentAnim = nullptr; m_swordAnim = nullptr;}
 
     return *this;
 }
@@ -52,7 +67,7 @@ Player::Player(SDL_Renderer* ren, v2 pos)
 : x(pos.x), y(pos.y),
   tex(Texture().loadTex(ren, PLAYER_PATH("player.png"))),
   stat(DIR_STATES::DOWN),
-  currentAnim(nullptr)
+  currentAnim(nullptr), m_swordAnim(nullptr)
 {
 
     addFrames(ren);
@@ -61,7 +76,44 @@ Player::Player(SDL_Renderer* ren, v2 pos)
 
 void Player::update(float delta, Camera& cam, const std::vector<SDL_Rect>& solids)
 {
-    move(delta, solids);
+    if (!m_attacking)
+        move(delta, solids);
+
+    if (input.attack && !m_attacking)
+    {
+        m_attacking = true;
+        attackUp.reset();   attackDown.reset();
+        attackLeft.reset(); attackRight.reset();
+        ssUp.reset();       ssDown.reset();
+        ssLeft.reset();     ssRight.reset();
+    }
+
+    if (m_attacking)
+    {
+        Animation* bodyAnim  = nullptr; // actual swing motion
+        Animation* swordAnim = nullptr; // sword moving
+        switch (stat)
+        {
+            case DIR_STATES::UP:     bodyAnim = &attackUp;    swordAnim = &ssUp;     break;
+            case DIR_STATES::DOWN:   bodyAnim = &attackDown;  swordAnim = &ssDown;   break;
+            case DIR_STATES::LEFT:   bodyAnim = &attackLeft;  swordAnim = &ssLeft;   break;
+            case DIR_STATES::RIGHT:  bodyAnim = &attackRight; swordAnim = &ssRight;  break;
+        }
+
+        // run both swing animations at the same time by using the same timer
+        bodyAnim->update(delta);
+        swordAnim->syncFrame(bodyAnim->getCurrentFrameIndex());
+
+        currentAnim = bodyAnim;
+        m_swordAnim = swordAnim;
+        m_src       = currentAnim->getCurrentFrame();
+
+        if (bodyAnim->isFinished())
+            m_attacking = false;
+        
+        return;  // skip second update if slash occurs
+    }
+
     matchAnimation();
     currentAnim->update(delta);
     m_src = currentAnim->getCurrentFrame();
@@ -74,6 +126,21 @@ void Player::queueForRender(Camera &cam)
        cam.toScrY(y * MAP_RENDER_SCALE), 
        m_src.w * SPRITE_RENDER_SCALE, 
        m_src.h * SPRITE_RENDER_SCALE);
+    
+    if (m_attacking && m_swordAnim)
+    {
+        SDL_Rect ssrc = m_swordAnim->getCurrentFrame();
+        int dirIdx = (int)stat; // UP=0 DOWN=1 LEFT=2 RIGHT=3
+        int frameIdx = std::min(currentAnim->getCurrentFrameIndex(), 4);
+        v2i off = swordOffsets[dirIdx][frameIdx];
+
+        // add sword sprite to renderer queue
+        submit(m_swordAnim->getTexture(), ssrc,
+            cam.toScrX(x * MAP_RENDER_SCALE) + off.x * SPRITE_RENDER_SCALE,
+            cam.toScrY(y * MAP_RENDER_SCALE) + off.y * SPRITE_RENDER_SCALE,
+            ssrc.w * SPRITE_RENDER_SCALE,
+            ssrc.h * SPRITE_RENDER_SCALE);
+    }
 }
 
 void Player::move(float delta, const std::vector<SDL_Rect>& solids)
@@ -139,6 +206,7 @@ void Player::move(float delta, const std::vector<SDL_Rect>& solids)
 
 void Player::matchAnimation()
 {
+    if (m_attacking) return;
     if (moving)
     {
         switch (stat)
@@ -227,7 +295,7 @@ void Player::addFrames(SDL_Renderer* ren)
     walkDown.addFrame({269, 4, 13, 17});
 
     walkLeft.load(ren, PLAYER_PATH("player.png"));
-    walkLeft.setFrameTime(0.07f);
+    walkLeft.setFrameTime(0.04f);
     walkLeft.addFrame({5, 76, 14, 16});
     walkLeft.addFrame({30, 76, 13, 17});
     walkLeft.addFrame({55, 76, 11, 17});
@@ -242,7 +310,7 @@ void Player::addFrames(SDL_Renderer* ren)
     walkLeft.addFrame({269, 76, 13, 17});
 
     walkRight.load(ren, PLAYER_PATH("player.png"));
-    walkRight.setFrameTime(0.07f);
+    walkRight.setFrameTime(0.04f);
     walkRight.addFrame({5, 52, 14, 16});
     walkRight.addFrame({30, 52, 13, 17});
     walkRight.addFrame({55, 52, 11, 17});
@@ -271,8 +339,17 @@ void Player::addFrames(SDL_Renderer* ren)
     walkUp.addFrame({246, 28, 11, 17});
     walkUp.addFrame({269, 28, 13, 17});
 
+    attackUp.setLooping(false);
+    attackDown.setLooping(false);
+    attackLeft.setLooping(false);
+    attackRight.setLooping(false);
+    ssUp.setLooping(false);
+    ssDown.setLooping(false);
+    ssLeft.setLooping(false);
+    ssRight.setLooping(false);
+
     attackUp.load(ren, PLAYER_PATH("player.png"));
-    attackUp.setFrameTime(0.07f);
+    attackUp.setFrameTime(0.04f);
     attackUp.addFrame({5, 100, 14, 16});
     attackUp.addFrame({30, 100, 13, 16});
     attackUp.addFrame({55, 101, 11, 15});
@@ -280,7 +357,7 @@ void Player::addFrames(SDL_Renderer* ren)
     attackUp.addFrame({102, 100, 11, 17});
 
     attackDown.load(ren, PLAYER_PATH("player.png"));
-    attackDown.setFrameTime(0.07f);
+    attackDown.setFrameTime(0.04f);
     attackDown.addFrame({5, 124, 14, 16});
     attackDown.addFrame({30, 124, 13, 16});
     attackDown.addFrame({54, 125, 13, 17});
@@ -288,42 +365,50 @@ void Player::addFrames(SDL_Renderer* ren)
     attackDown.addFrame({103, 125, 13, 16});
 
     attackLeft.load(ren, PLAYER_PATH("player.png"));
-    attackLeft.setFrameTime(0.07f);
-    attackLeft.addFrame({7, 148, 10, 16});
-    attackLeft.addFrame({31, 148, 10, 16});
-    attackLeft.addFrame({56, 148, 10, 16});
-    attackLeft.addFrame({79, 148, 11, 16});
-    attackLeft.addFrame({102, 148, 12, 15});
+    attackLeft.setFrameTime(0.04f);
+    attackLeft.addFrame({7, 172, 10, 16});
+    attackLeft.addFrame({31, 172, 10, 16});
+    attackLeft.addFrame({56, 172, 10, 16});
+    attackLeft.addFrame({79, 172, 11, 16});
+    attackLeft.addFrame({102, 172, 12, 15});
+
+    attackRight.load(ren, PLAYER_PATH("player.png"));
+    attackRight.setFrameTime(0.04f);
+    attackRight.addFrame({7, 148, 10, 16});
+    attackRight.addFrame({31, 148, 10, 16});
+    attackRight.addFrame({56, 148, 10, 16});
+    attackRight.addFrame({79, 148, 11, 16});
+    attackRight.addFrame({102, 148, 12, 15});
 
     ssUp.load(ren, PLAYER_PATH("player.png"));
     ssUp.setFrameTime(0.07f);
     ssUp.addFrame({8, 222, 11, 11});
     ssUp.addFrame({31, 219, 13, 13});
     ssUp.addFrame({54, 220, 11, 13});
-    ssUp.addFrame({77, 221, 12, 12});
+    ssUp.addFrame({77, 221, 11, 12});
     ssUp.addFrame({101, 222, 11, 11});
 
     ssDown.load(ren, PLAYER_PATH("player.png"));
     ssDown.setFrameTime(0.07f);
-    ssDown.addFrame({8, 199, 11, 11});
-    ssDown.addFrame({31, 199, 13, 13});
-    ssDown.addFrame({54, 199, 11, 13});
-    ssDown.addFrame({77, 199, 12, 12});
-    ssDown.addFrame({101, 199, 11, 11});
+    ssDown.addFrame({5, 199, 11, 11});
+    ssDown.addFrame({28, 200, 13, 13});
+    ssDown.addFrame({55, 199, 11, 13});
+    ssDown.addFrame({80, 199, 11, 12});
+    ssDown.addFrame({104, 199, 11, 11});
 
     ssLeft.load(ren, PLAYER_PATH("player.png"));
     ssLeft.setFrameTime(0.07f);
-    ssLeft.addFrame({8, 272, 11, 11});
-    ssLeft.addFrame({31, 272, 13, 13});
-    ssLeft.addFrame({54, 272, 11, 13});
-    ssLeft.addFrame({77, 272, 12, 12});
-    ssLeft.addFrame({101, 272, 11, 11});
+    ssLeft.addFrame({6, 272, 11, 11});
+    ssLeft.addFrame({27, 271, 13, 13});
+    ssLeft.addFrame({52, 270, 13, 11});
+    ssLeft.addFrame({77, 269, 12, 11});
+    ssLeft.addFrame({102, 269, 11, 11});
 
     ssRight.load(ren, PLAYER_PATH("player.png"));
     ssRight.setFrameTime(0.07f);
-    ssRight.addFrame({8, 248, 11, 11});
-    ssRight.addFrame({31, 248, 13, 13});
-    ssRight.addFrame({54, 248, 11, 13});
-    ssRight.addFrame({77, 248, 12, 12});
-    ssRight.addFrame({101, 248, 11, 11});
+    ssRight.addFrame({7, 248, 11, 11});
+    ssRight.addFrame({32, 247, 13, 13});
+    ssRight.addFrame({55, 246, 13, 11});
+    ssRight.addFrame({79, 245, 12, 11});
+    ssRight.addFrame({103, 245, 11, 11});
 }

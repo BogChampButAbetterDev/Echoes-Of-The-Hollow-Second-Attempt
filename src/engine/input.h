@@ -5,6 +5,7 @@
 struct Input
 {
     bool w, a, s, d;
+    bool attack;
     bool interact; // space
     bool escape;
 };
