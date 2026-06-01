@@ -6,6 +6,7 @@
 #include "engine/font.h"
 #include "engine/ui.h"
 #include "actors/player.h"
+#include "actors/bee.h"
 
 class Game
 {
@@ -35,9 +36,10 @@ private:
 
     Camera m_cam;
     Player m_player;
+    Bee m_bee; // temporary
 
     Font* m_font;
-    UI m_ui;
+    UI* m_ui = nullptr;
 
     void init();
     void checkInteraction();

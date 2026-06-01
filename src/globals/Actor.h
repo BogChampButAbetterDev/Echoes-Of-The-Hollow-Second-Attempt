@@ -1,7 +1,10 @@
 #pragma once
 #include <string>
+#include <cstdint>
 
 #define COLLISION_SLIDE_THRESHOLD 5
+
+using u8 = uint8_t;
 
 typedef struct Vector2
 {

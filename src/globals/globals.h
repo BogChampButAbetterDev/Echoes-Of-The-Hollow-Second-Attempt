@@ -1,8 +1,10 @@
 #pragma once
+
 #define ASSET_PATH "assets/"
 #define FONT_PATH(x)   ASSET_PATH "font/" x
 #define MAP_PATH(x)    ASSET_PATH "maps/" x
-#define PLAYER_PATH(x)    ASSET_PATH "player/" x
+#define PLAYER_PATH(x) ASSET_PATH "player/" x
+#define ENEMY_PATH(x)  ASSET_PATH "Enemies/" x
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600

@@ -78,7 +78,7 @@ void Render::renderFromQueue()
             rq.w,
             rq.h
         };
-        SDL_RenderCopy(this->renderer, rq.tex, &rq.src, &dst);
+        SDL_RenderCopyEx(this->renderer, rq.tex, &rq.src, &dst, 0.0, NULL, rq.flipH ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     }
 
     r_queue.clear();

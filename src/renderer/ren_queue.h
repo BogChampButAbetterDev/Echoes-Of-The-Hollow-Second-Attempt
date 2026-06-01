@@ -17,6 +17,7 @@ struct RenderRequest
     #endif
     int x, y, w, h;
     int z;
+    bool flipH = false;
 };
 
 extern std::vector <RenderRequest> r_queue;
@@ -24,5 +25,5 @@ extern std::vector <RenderRequest> r_queue;
 #ifdef __3DS__
 void submit(C2D_Image img, int x, int y, int w, int h);
 #else
-void submit(SDL_Texture* tex, SDL_Rect src, int x, int y, int w, int h);
+void submit(SDL_Texture* tex, SDL_Rect src, int x, int y, int w, int h, bool flipH=false);
 #endif

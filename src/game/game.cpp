@@ -6,6 +6,7 @@ Game::Game() :
 m_win(nullptr),
 m_ren(),
 m_player(),
+m_bee(nullptr, {0, 0}),
 running(true),
 lastTime(0),
 delta(0),
@@ -59,7 +60,7 @@ void Game::checkInteraction()
     if (!closest) return;
 
     if (!closest->interact())
-        m_ui.openDialogue(m_ren.renderer, closest->data);
+        m_ui->openDialogue(m_ren.renderer, closest->data);
 }
 
 void Game::checkContact()
@@ -226,8 +227,8 @@ void Game::mainLoop()
 
         if (interactPressed)
         {
-            if (m_ui.isDialogueOpen())
-                m_ui.advance(m_ren.renderer);
+            if (m_ui->isDialogueOpen())
+                m_ui->advance(m_ren.renderer);
             else
                 checkInteraction();
         }
@@ -238,12 +239,14 @@ void Game::mainLoop()
             m_player.getX() * MAP_RENDER_SCALE,
             m_player.getY() * MAP_RENDER_SCALE);
 
-        if (!m_ui.isDialogueOpen() && !m_cam.inCutscene && !m_sm.isTransitioning())
+        if (!m_ui->isDialogueOpen() && !m_cam.inCutscene && !m_sm.isTransitioning())
         {
             m_player.update(delta, m_cam, solids);
             checkContact();
             checkDoorTransitions();
         }
+
+        m_bee.update(delta);
 
         m_sm.update(delta, *this);
 
@@ -251,9 +254,10 @@ void Game::mainLoop()
         m_currentScene->map.renderGround(m_ren.renderer, m_cam);
         m_currentScene->map.renderObjects(m_ren.renderer, m_cam);
         m_player.queueForRender(m_cam);
+        m_bee.queueForRender(m_cam);
         m_ren.renderFromQueue();
         m_currentScene->map.renderOverhead(m_ren.renderer, m_cam);
-        m_ui.render(m_ren.renderer);
+        m_ui->render(m_ren.renderer);
         m_sm.render(m_ren.renderer); // render fade
 
         #if USING_CONTROLLER
@@ -294,6 +298,10 @@ void Game::end()
 {
     Texture::clearCache();
     if (m_dialogueTex) SDL_DestroyTexture(m_dialogueTex);
+    delete m_ui;
+    m_ui = nullptr;
+    delete m_font;
+    m_font = nullptr;
     Font::quit();
     SDL_DestroyRenderer(m_ren.renderer);
     SDL_DestroyWindow(m_win);
@@ -319,9 +327,12 @@ SDL_Window* Game::createWin()
 
 void Game::init()
 {
-    m_player = Player(m_ren.renderer, {0, 0});
     m_font = new Font(FONT_PATH("font.ttf"), TEXT_SIZE_DEFAULT);
-    m_ui = UI(m_font);
+    m_ui = new UI(m_font);
+
+    m_player = Player(m_ren.renderer, {0, 0});
+    m_bee    = Bee(m_ren.renderer, {0, 0});
+    m_bee.init(m_ren.renderer);
 
     loadScene("testworld.tmx", "default");
 }
