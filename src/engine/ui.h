@@ -23,8 +23,8 @@ private:
     Font* m_font;
     bool m_dialogueOpen;
     std::vector<std::string> m_pages;
-    int m_currentPage;
     SDL_Texture* m_dialogueTex;
+    int m_currentPage;
 
     void rebuildTexture(SDL_Renderer* ren);
     void renderDialogue(SDL_Renderer* ren);

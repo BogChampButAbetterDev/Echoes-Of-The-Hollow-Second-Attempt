@@ -234,6 +234,12 @@ void Game::mainLoop()
         }
 
         const auto& solids = m_currentScene->map.getSolidRects();
+        SDL_Rect mapBounds = 
+        {
+            0, 0,
+            m_currentScene->map.m_mapWidth  * m_currentScene->map.m_tileWidth  * MAP_RENDER_SCALE,
+            m_currentScene->map.m_mapHeight * m_currentScene->map.m_tileHeight * MAP_RENDER_SCALE
+        };
 
         m_cam.update(delta,
             m_player.getX() * MAP_RENDER_SCALE,
@@ -246,7 +252,7 @@ void Game::mainLoop()
             checkDoorTransitions();
         }
 
-        m_bee.update(delta);
+        m_bee.update(delta, solids, m_player.getX(), m_player.getY(), mapBounds);
 
         m_sm.update(delta, *this);
 
@@ -331,7 +337,7 @@ void Game::init()
     m_ui = new UI(m_font);
 
     m_player = Player(m_ren.renderer, {0, 0});
-    m_bee    = Bee(m_ren.renderer, {0, 0});
+    m_bee    = Bee(m_ren.renderer, {10, 30});
     m_bee.init(m_ren.renderer);
 
     loadScene("testworld.tmx", "default");

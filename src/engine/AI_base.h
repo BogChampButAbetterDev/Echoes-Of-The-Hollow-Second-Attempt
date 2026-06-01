@@ -11,7 +11,8 @@ struct AI
     float x, y;
     
     virtual void init(SDL_Renderer* ren) = 0;
-    virtual void update(float delta) = 0;
+    // px and py can be left 0 if NPC has no use for them
+    virtual void update(float delta, const std::vector<SDL_Rect>& solids, float px, float py, SDL_Rect mapBounds) = 0;
     virtual void queueForRender(Camera& cam) = 0;
     virtual void onDamage(float amount) {}
     virtual void onDeath() {}

@@ -15,3 +15,5 @@
 static constexpr int SPRITE_RENDER_SCALE = 3;
 
 #define USING_CONTROLLER true
+
+#define M_PI 3.141592

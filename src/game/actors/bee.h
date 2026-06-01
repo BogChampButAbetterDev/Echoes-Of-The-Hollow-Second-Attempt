@@ -4,7 +4,8 @@
 
 #define ACTION_IDLE   0x01
 #define ACTION_PATROL 0x02
-#define ACTION_ATTACK 0x04
+#define ACTION_CHASE  0x04
+#define ACTION_ATTACK 0x08
 
 #define STATE_NONE    0x00
 #define STATE_PAIN    0x01
@@ -27,7 +28,7 @@ public:
     Bee(SDL_Renderer* ren, v2 pos);
 
     void init(SDL_Renderer* ren) override;
-    void update(float delta) override;
+    void update(float delta, const std::vector<SDL_Rect>& solids, float px, float py, SDL_Rect mapBounds) override;
     void queueForRender(Camera& cam) override;
     void onDamage(float amount) override;
     void onDeath() override;
@@ -52,8 +53,17 @@ private:
 
     DIR_STATE stat;
 
-    void stateMachine();
+    float m_patrolTimer = 0.0f;
+    float m_patrolDX    = 0.0f;
+    float m_patrolDY    = 0.0f;
+    // set by stateMachine when chasing
+    float m_targetX     = 0.0f; 
+    float m_targetY     = 0.0f;
+
+    SDL_Rect getHitbox();
+
+    void stateMachine(float px, float py);
     void matchAnimation();
     void addFrames(SDL_Renderer* ren);
-    void move(float delta, const std::vector<SDL_Rect>& solids);
+    void move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBounds);
 };

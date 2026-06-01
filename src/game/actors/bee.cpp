@@ -16,9 +16,13 @@ void Bee::init(SDL_Renderer* ren)
     currentAnim = &sIdle;
 }
 
-void Bee::update(float delta)
+void Bee::update(float delta, const std::vector<SDL_Rect>& solids, float px, float py, SDL_Rect mapBounds)
 {
-    m_src = currentAnim->getCurrentFrame();
+    stateMachine(px, py); // decide what to do
+    move(delta, solids, mapBounds); // act
+    matchAnimation(); // animate
+    currentAnim->update(delta);
+    m_src = currentAnim->getCurrentFrame(); // set sprite texture for rendering
 }
 
 void Bee::queueForRender(Camera& cam)
@@ -31,29 +35,160 @@ void Bee::queueForRender(Camera& cam)
        flipH);
 }
 
+void Bee::move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBounds)
+{
+    float speed = 20.0f * MAP_RENDER_SCALE;
+    float dx = 0, dy = 0;
+
+    if (actionState == ACTION_PATROL)
+    {
+        // count down patrol timer, pick a new random direction when it expires
+        m_patrolTimer -= delta;
+        if (m_patrolTimer <= 0.0f)
+        {
+            // random angle in radians
+            float angle = ((float)rand() / RAND_MAX) * 2.0f * M_PI;
+            m_patrolDX = std::cos(angle);
+            m_patrolDY = std::sin(angle);
+
+            // random duration between 0.5 and 2 seconds
+            m_patrolTimer = 0.5f + ((float)rand() / RAND_MAX) * 1.5f;
+        }
+
+        dx = m_patrolDX * speed * delta;
+        dy = m_patrolDY * speed * delta;
+    }
+    else if (actionState == ACTION_CHASE)
+    {
+        // reset patrol so bee picks a fresh direction when it loses the player
+        m_patrolTimer = 0.0f;
+
+        float diffX = m_targetX - x;
+        float diffY = m_targetY - y;
+        float dist  = std::sqrt(diffX * diffX + diffY * diffY);
+
+        if (dist > 0.0f)
+        {
+            dx = (diffX / dist) * speed * delta;
+            dy = (diffY / dist) * speed * delta;
+        }
+    }
+
+    // update facing direction for matchAnimation()
+    if (std::abs(dx) >= std::abs(dy))
+        stat = (dx > 0) ? DIR_STATE::RIGHT : DIR_STATE::LEFT;
+    else
+        stat = (dy > 0) ? DIR_STATE::DOWN : DIR_STATE::UP;
+
+    // resolve X
+    float oldX = x;
+    x += dx;
+    SDL_Rect rx = getHitbox();
+    for (const SDL_Rect& tile : solids)
+    {
+        if (SDL_HasIntersection(&rx, &tile))
+        {
+            x = oldX;
+            m_patrolDX = -m_patrolDX; // bounce off walls during patrol
+            break;
+        }
+    }
+
+    // resolve Y
+    float oldY = y;
+    y += dy;
+    SDL_Rect ry = getHitbox();
+    for (const SDL_Rect& tile : solids)
+    {
+        if (SDL_HasIntersection(&ry, &tile))
+        {
+            y = oldY;
+            m_patrolDY = -m_patrolDY; // bounce off walls during patrol
+            break;
+        }
+    }
+
+    // clamp to map bounds — divide by MAP_RENDER_SCALE since x/y are in tile space
+    float maxX = (mapBounds.w / MAP_RENDER_SCALE) - m_src.w;
+    float maxY = (mapBounds.h / MAP_RENDER_SCALE) - m_src.h;
+
+    x = std::max(0.0f, std::min(x, maxX));
+    y = std::max(0.0f, std::min(y, maxY));
+}
+
+SDL_Rect Bee::getHitbox()
+{
+    return {
+        (int)(x * MAP_RENDER_SCALE),
+        (int)(y * MAP_RENDER_SCALE),
+        m_src.w * SPRITE_RENDER_SCALE,
+        m_src.h * SPRITE_RENDER_SCALE
+    };
+}
+
 void Bee::onDamage(float amount)
 {
-    
+    // TODO
 }
 
 void Bee::onDeath() 
 {
-    
+    // TODO
 }
 
-void Bee::stateMachine()
+void Bee::stateMachine(float px, float py)
 {
-    
+    float dx = px - x;
+    float dy = py - y;
+    float dist = std::sqrt(dx * dx + dy * dy);
+
+    const float aggroRadius = 60.0f; 
+
+    if (dist < aggroRadius)
+    {
+        actionState = ACTION_CHASE;
+        m_targetX = px;
+        m_targetY = py;
+    }
+    else
+    {
+        actionState = ACTION_PATROL;
+    }
 }
 
 void Bee::matchAnimation()
 {
-    
-}
+    Animation* next = nullptr;
+    bool nextFlip = false;
 
-void Bee::move(float delta, const std::vector<SDL_Rect>& solids)
-{
-    
+    if (actionState == ACTION_PATROL || actionState == ACTION_CHASE)
+    {
+        switch (stat)
+        {
+            case DIR_STATE::UP:    next = &uWalk; nextFlip = false; break;
+            case DIR_STATE::DOWN:  next = &dWalk; nextFlip = false; break;
+            case DIR_STATE::LEFT:  next = &sWalk; nextFlip = false; break;
+            case DIR_STATE::RIGHT: next = &sWalk; nextFlip = true;  break;
+        }
+    }
+    else if (actionState == ACTION_IDLE)
+    {
+        switch (stat)
+        {
+            case DIR_STATE::UP:    next = &uIdle; nextFlip = false; break;
+            case DIR_STATE::DOWN:  next = &dIdle; nextFlip = false; break;
+            case DIR_STATE::LEFT:  next = &sIdle; nextFlip = false; break;
+            case DIR_STATE::RIGHT: next = &sIdle; nextFlip = true;  break;
+        }
+    }
+
+    // only switch if actually changing — prevents constant frame reset
+    if (next && next != currentAnim)
+    {
+        currentAnim = next;
+        currentAnim->reset();
+    }
+    flipH = nextFlip;
 }
 
 void Bee::addFrames(SDL_Renderer* ren)
