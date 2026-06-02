@@ -8,7 +8,7 @@ Bee::Bee(SDL_Renderer* ren, v2 pos)
 void Bee::init(SDL_Renderer* ren)
 {
     flipH = false;
-    health = 100;
+    health = 30;
     actionState = ACTION_IDLE;
     stateFlags = STATE_NONE;
     stat = DIR_STATE::LEFT;
@@ -16,10 +16,12 @@ void Bee::init(SDL_Renderer* ren)
     currentAnim = &sIdle;
 }
 
-void Bee::update(float delta, const std::vector<SDL_Rect>& solids, float px, float py, SDL_Rect mapBounds)
+void Bee::update(float delta, const std::vector<SDL_Rect>& solids, float px, float py, SDL_Rect mapBounds, Player& player)
 {
-    stateMachine(px, py); // decide what to do
-    move(delta, solids, mapBounds); // act
+    m_iframeTimer -= delta;
+    if (m_iframeTimer < 0.0f) m_iframeTimer = 0.0f;
+    stateMachine(px, py, player); // decide what to do
+    move(delta, solids, mapBounds, px, py); // act
     matchAnimation(); // animate
     currentAnim->update(delta);
     m_src = currentAnim->getCurrentFrame(); // set sprite texture for rendering
@@ -35,10 +37,9 @@ void Bee::queueForRender(Camera& cam)
        flipH);
 }
 
-void Bee::move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBounds)
+void Bee::move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBounds, float px, float py)
 {
     float speed = 20.0f * MAP_RENDER_SCALE;
-    float dx = 0, dy = 0;
 
     if (actionState == ACTION_PATROL)
     {
@@ -72,6 +73,21 @@ void Bee::move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBou
             dx = (diffX / dist) * speed * delta;
             dy = (diffY / dist) * speed * delta;
         }
+    }
+
+    if (m_knockbackTimer > 0.0f)
+    {
+        x += m_knockbackX * delta;
+        y += m_knockbackY * delta;
+
+        m_knockbackTimer -= delta;
+
+        if (m_knockbackTimer <= 0.0f)
+        {
+            stateFlags &= ~STATE_PAIN;
+        }
+
+        return;
     }
 
     // update facing direction for matchAnimation()
@@ -108,7 +124,7 @@ void Bee::move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBou
         }
     }
 
-    // clamp to map bounds — divide by MAP_RENDER_SCALE since x/y are in tile space
+    // clamp to map bounds
     float maxX = (mapBounds.w / MAP_RENDER_SCALE) - m_src.w;
     float maxY = (mapBounds.h / MAP_RENDER_SCALE) - m_src.h;
 
@@ -128,23 +144,43 @@ SDL_Rect Bee::getHitbox()
 
 void Bee::onDamage(float amount)
 {
-    // TODO
+    if (m_iframeTimer > 0.0f) return;
+    health -= amount;
+    stateFlags = STATE_PAIN;
+    m_iframeTimer = 0.5f;
+    m_knockbackX = -50.0f;
+    m_knockbackY = 0.0f;
+    m_knockbackTimer = 0.15f;
+
+    if (health <= 0)
+        onDeath();
 }
 
 void Bee::onDeath() 
 {
-    // TODO
+    std::cout << "died\n";
+    stateFlags = STATE_DEATH;
+    actionState = ACTION_IDLE;
 }
 
-void Bee::stateMachine(float px, float py)
+void Bee::stateMachine(float px, float py, Player& player)
 {
+    // sword hit check
+    SDL_Rect sword = player.getSwordHitbox();
+    if (sword.w > 0 && sword.h > 0) // only check if actually attacking
+    {
+        SDL_Rect self = getHitbox();
+        if (SDL_HasIntersection(&sword, &self))
+        {
+            onDamage(player.current_damage_amount);
+        }
+    }
+
     float dx = px - x;
     float dy = py - y;
     float dist = std::sqrt(dx * dx + dy * dy);
 
-    const float aggroRadius = 60.0f; 
-
-    if (dist < aggroRadius)
+    if (dist < AGGRO_RAD)
     {
         actionState = ACTION_CHASE;
         m_targetX = px;
@@ -182,7 +218,22 @@ void Bee::matchAnimation()
         }
     }
 
-    // only switch if actually changing — prevents constant frame reset
+    if (stateFlags == STATE_PAIN)
+    {
+        
+    }
+    else if (stateFlags == STATE_DEATH)
+    {
+        switch (stat)
+        {
+            case DIR_STATE::UP:    next = &uDeath; nextFlip = false; break;
+            case DIR_STATE::DOWN:  next = &dDeath; nextFlip = false; break;
+            case DIR_STATE::LEFT:  next = &sDeath; nextFlip = false; break;
+            case DIR_STATE::RIGHT: next = &sDeath; nextFlip = true;  break;
+        }
+    }
+
+    // only switch if actually changing
     if (next && next != currentAnim)
     {
         currentAnim = next;

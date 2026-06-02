@@ -143,6 +143,24 @@ void Player::queueForRender(Camera &cam)
     }
 }
 
+SDL_Rect Player::getSwordHitbox()
+{
+    if (!m_attacking) return {0, 0, 0, 0};
+
+    int px = (int)(x * MAP_RENDER_SCALE);
+    int py = (int)(y * MAP_RENDER_SCALE);
+    int reach = 12 * SPRITE_RENDER_SCALE; // how far the sword can reach
+
+    switch (stat)
+    {
+        case DIR_STATES::UP:    return {px,          py - reach, m_src.w * SPRITE_RENDER_SCALE, reach};
+        case DIR_STATES::DOWN:  return {px,          py + m_src.h * SPRITE_RENDER_SCALE, m_src.w * SPRITE_RENDER_SCALE, reach};
+        case DIR_STATES::LEFT:  return {px - reach,  py, reach, m_src.h * SPRITE_RENDER_SCALE};
+        case DIR_STATES::RIGHT: return {px + m_src.w * SPRITE_RENDER_SCALE, py, reach, m_src.h * SPRITE_RENDER_SCALE};
+        default: return {0, 0, 0, 0}; 
+    }
+}
+
 void Player::move(float delta, const std::vector<SDL_Rect>& solids)
 {
     float speed = 30.0f * MAP_RENDER_SCALE;

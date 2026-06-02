@@ -252,7 +252,7 @@ void Game::mainLoop()
             checkDoorTransitions();
         }
 
-        m_bee.update(delta, solids, m_player.getX(), m_player.getY(), mapBounds);
+        m_bee.update(delta, solids, m_player.getX(), m_player.getY(), mapBounds, m_player);
 
         m_sm.update(delta, *this);
 

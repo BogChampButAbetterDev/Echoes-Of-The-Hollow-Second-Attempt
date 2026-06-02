@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -20,21 +21,23 @@ enum class DIR_STATES
 class Player
 {
 public:
-    Input input;
-
     Player(const Player& other)
-    : x(other.x), y(other.y), tex(other.tex), m_src(other.m_src),
-    moving(other.moving), stat(other.stat), m_attacking(other.m_attacking),
-    m_attackTimer(other.m_attackTimer),
-    idleUp(other.idleUp), idleDown(other.idleDown),
-    idleLeft(other.idleLeft), idleRight(other.idleRight),
-    walkUp(other.walkUp), walkDown(other.walkDown),
-    walkLeft(other.walkLeft), walkRight(other.walkRight),
-    attackUp(other.attackUp), attackDown(other.attackDown),
-    attackLeft(other.attackLeft), attackRight(other.attackRight),
-    ssUp(other.ssUp), ssDown(other.ssDown),
-    ssLeft(other.ssLeft), ssRight(other.ssRight),
-    input(other.input)
+    : 
+      input(other.input),
+      tex(other.tex), m_src(other.m_src),   
+      x(other.x), y(other.y),
+      moving(other.moving), stat(other.stat),
+      m_attacking(other.m_attacking),
+      m_attackTimer(other.m_attackTimer),
+      idleUp(other.idleUp), idleDown(other.idleDown),
+      idleLeft(other.idleLeft), idleRight(other.idleRight),
+      walkUp(other.walkUp), walkDown(other.walkDown),
+      walkLeft(other.walkLeft), walkRight(other.walkRight),
+      attackUp(other.attackUp), attackDown(other.attackDown),
+      attackLeft(other.attackLeft), attackRight(other.attackRight),
+      ssUp(other.ssUp), ssDown(other.ssDown),
+      ssLeft(other.ssLeft), ssRight(other.ssRight),
+      currentAnim(nullptr), m_swordAnim(nullptr)
     {
         if (other.currentAnim == &other.idleUp)         currentAnim = &idleUp;
         else if (other.currentAnim == &other.idleDown)  currentAnim = &idleDown;
@@ -65,6 +68,12 @@ public:
     float getY() { return y; }
 
     DIR_STATES getStat() { return stat; }
+
+    SDL_Rect getSwordHitbox();
+
+    float current_damage_amount = 10.0f;
+
+    Input input;
 
 private:
     SDL_Texture* tex;
@@ -97,5 +106,5 @@ private:
     Animation ssLeft;
     Animation ssRight;
     Animation* currentAnim;  // pointer to whichever is active
-    Animation* m_swordAnim; 
+    Animation* m_swordAnim;
 };

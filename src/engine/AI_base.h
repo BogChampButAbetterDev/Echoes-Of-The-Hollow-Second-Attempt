@@ -2,6 +2,7 @@
 #include "animation.h" // may as well leave this in so subclasses can access animation
 #include "camera.h"
 #include "globals/Actor.h"
+#include "game/actors/player.h"
 
 struct AI
 {
@@ -12,7 +13,7 @@ struct AI
     
     virtual void init(SDL_Renderer* ren) = 0;
     // px and py can be left 0 if NPC has no use for them
-    virtual void update(float delta, const std::vector<SDL_Rect>& solids, float px, float py, SDL_Rect mapBounds) = 0;
+    virtual void update(float delta, const std::vector<SDL_Rect>& solids, float px, float py, SDL_Rect mapBounds, Player& player) = 0;
     virtual void queueForRender(Camera& cam) = 0;
     virtual void onDamage(float amount) {}
     virtual void onDeath() {}
