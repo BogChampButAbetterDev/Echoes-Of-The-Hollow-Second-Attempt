@@ -22,3 +22,19 @@ struct SpawnPoint
     std::string name = "";
     float x = 0.0f, y = 0.0f;
 };
+
+struct EnemySpawnPoint
+{
+    std::string id = "";
+    std::string enemyType = "";
+    float x = 0.0f;
+    float y = 0.0f;
+    int maxCount = 1;
+};
+
+struct EnemyDef
+{
+    std::string type = "";
+    float respawnDelay = 5.0f;
+    bool  unique = false;
+};

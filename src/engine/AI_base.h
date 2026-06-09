@@ -10,6 +10,8 @@ struct AI
     u8 stateFlags;  // things like taking damage or being stunned
 
     float x, y;
+
+    float health;
     
     virtual void init(SDL_Renderer* ren) = 0;
     // px and py can be left 0 if NPC has no use for them

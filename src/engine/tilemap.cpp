@@ -122,14 +122,63 @@ void TileMap::loadTMX(const char* path, SDL_Renderer* ren)
             while (obj)
             {
                 const char* spawnName = obj->Attribute("name");
+                const char* spawnType = obj->Attribute("type"); // Tiled "class" field
+ 
                 if (spawnName)
                 {
-                    SpawnPoint sp;
-                    sp.name = spawnName;
-                    sp.x    = obj->FloatAttribute("x");
-                    sp.y    = obj->FloatAttribute("y");
-                    m_spawnPoints[sp.name] = sp;
-                    std::cout << "Spawn point: " << sp.name << " at " << sp.x << ", " << sp.y << "\n";
+                    // no type or player type = player spawn point
+                    if (!spawnType || strcmp(spawnType, "player") == 0 || strcmp(spawnType, "") == 0)
+                    {
+                        SpawnPoint sp;
+                        sp.name = spawnName;
+                        sp.x    = obj->FloatAttribute("x");
+                        sp.y    = obj->FloatAttribute("y");
+                        m_spawnPoints[sp.name] = sp;
+                        std::cout << "Spawn point: " << sp.name
+                                  << " at " << sp.x << ", " << sp.y << "\n";
+                    }
+                    // enemy spawn points
+                    else if (strcmp(spawnType, "enemy") == 0)
+                    {
+                        EnemySpawnPoint esp;
+                        esp.id = spawnName;
+                        esp.x  = obj->FloatAttribute("x");
+                        esp.y  = obj->FloatAttribute("y");
+ 
+                        // Read custom properties: enemyType, maxCount
+                        XMLElement* props = obj->FirstChildElement("properties");
+                        if (props)
+                        {
+                            XMLElement* prop = props->FirstChildElement("property");
+                            while (prop)
+                            {
+                                const char* propName = prop->Attribute("name");
+                                const char* propVal  = prop->Attribute("value");
+                                if (propName && propVal)
+                                {
+                                    if (strcmp(propName, "enemyType") == 0)
+                                        esp.enemyType = propVal;
+                                    if (strcmp(propName, "maxCount") == 0)
+                                        esp.maxCount = std::stoi(propVal);
+                                }
+                                prop = prop->NextSiblingElement("property");
+                            }
+                        }
+ 
+                        if (!esp.enemyType.empty())
+                        {
+                            m_enemySpawnPoints.push_back(esp);
+                            std::cout << "Enemy spawn: " << esp.id
+                                      << " type=" << esp.enemyType
+                                      << " max=" << esp.maxCount
+                                      << " at " << esp.x << ", " << esp.y << "\n";
+                        }
+                        else
+                        {
+                            std::cout << "Warning: enemy spawn '" << esp.id
+                                      << "' has no enemyType property - skipped\n";
+                        }
+                    }
                 }
                 obj = obj->NextSiblingElement("object");
             }

@@ -3,6 +3,7 @@
 #include "engine/tilemap.h"
 #include "engine/scene.h"
 #include "engine/scenemanager.h"
+#include "scenes/allScenes.h"
 #include "engine/font.h"
 #include "engine/ui.h"
 #include "actors/player.h"
@@ -32,11 +33,11 @@ private:
 
     SceneManager m_sm;
     Scene* m_currentScene;
+    AllScenes m_allScenes;
     std::unordered_map<std::string, Scene> m_scenes;
 
     Camera m_cam;
     Player m_player;
-    Bee m_bee; // temporary
 
     Font* m_font;
     UI* m_ui = nullptr;

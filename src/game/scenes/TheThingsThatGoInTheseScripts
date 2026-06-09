@@ -1,0 +1,11 @@
+*SCENENAME*.h
+- These scene files get written for every scene
+- They control the things that need to be specific for every scene
+    - how long it takes for an enemy's slot to refil
+    - whether an enemy is unique (only one alive at once)
+- basically things related to AI  so I guess the scene name kinda misleading
+- I'll overcomplicate this more later to fix that
+
+allScenes.h
+- Connects a map to a filename
+- Game::loadScene calls getConfig to get the right config before loading the scene

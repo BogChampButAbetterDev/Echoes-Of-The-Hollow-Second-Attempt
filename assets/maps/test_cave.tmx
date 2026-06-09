@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="19" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="11">
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="25" height="19" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="11">
  <tileset firstgid="1" name="wrlTiles" tilewidth="16" tileheight="16" tilecount="119" columns="7">
   <image source="assets/ENVIRONMENT/tilesets/tileset-world.png" trans="ff00ff" width="112" height="272"/>
  </tileset>
- <tileset firstgid="120" name="sign" tilewidth="16" tileheight="16" tilecount="1" columns="1">
+ <tileset firstgid="120" name="sign" tilewidth="16" tileheight="16" tilecount="0" columns="1">
   <image source="assets/OBJECTS/sprites/sign.png" trans="ff00ff" width="16" height="16"/>
  </tileset>
  <layer id="1" name="ground" width="25" height="19">
@@ -80,7 +80,7 @@
   <object id="2" x="0.5" y="17" width="14.5" height="286"/>
   <object id="3" x="15" y="273.5" width="175" height="31.5"/>
   <object id="4" x="207.5" y="273" width="192" height="30.5"/>
-  <object id="5" x="385" y="19" width="14.5" height="254"/>
+  <object id="5" x="385" y="16.6364" width="14.5" height="256.364"/>
   <object id="7" x="192.545" y="147.636" width="14.9091" height="11.8182"/>
  </objectgroup>
  <objectgroup id="5" name="interactables">

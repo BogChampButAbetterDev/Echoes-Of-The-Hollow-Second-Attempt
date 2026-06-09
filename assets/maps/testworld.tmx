@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="50" height="37" tilewidth="16" tileheight="16" infinite="0" nextlayerid="13" nextobjectid="61">
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="50" height="37" tilewidth="16" tileheight="16" infinite="0" nextlayerid="13" nextobjectid="62">
  <tileset firstgid="1" name="world" tilewidth="16" tileheight="16" tilecount="119" columns="7">
   <image source="assets/ENVIRONMENT/tilesets/tileset-world.png" trans="ff00ff" width="112" height="272"/>
  </tileset>
- <tileset firstgid="120" name="sign" tilewidth="16" tileheight="16" tilecount="1" columns="1">
+ <tileset firstgid="120" name="sign" tilewidth="16" tileheight="16" tilecount="0" columns="1">
   <image source="assets/OBJECTS/sprites/sign.png" trans="ff00ff" width="16" height="16"/>
  </tileset>
- <tileset firstgid="121" name="chest-opened" tilewidth="16" tileheight="16" tilecount="1" columns="1">
-  <image source="assets/OBJECTS/sprites/chest-opened.png" trans="ff00ff" width="16" height="16"/>
- </tileset>
- <tileset firstgid="122" name="chest-closed" tilewidth="16" tileheight="16" tilecount="1" columns="1">
+ <tileset firstgid="121" name="chest-opened" tilewidth="16" tileheight="16" tilecount="0" columns="1">
   <image source="assets/OBJECTS/sprites/chest-closed.png" trans="ff00ff" width="16" height="16"/>
  </tileset>
- <tileset firstgid="123" name="button-up" tilewidth="16" tileheight="16" tilecount="1" columns="1">
+ <tileset firstgid="121" name="chest-closed" tilewidth="16" tileheight="16" tilecount="0" columns="1">
+  <image source="assets/OBJECTS/sprites/chest-opened.png" trans="ff00ff" width="16" height="16"/>
+ </tileset>
+ <tileset firstgid="122" name="button-up" tilewidth="16" tileheight="16" tilecount="0" columns="1">
   <image source="assets/OBJECTS/button/button1.png" trans="ff00ff" width="16" height="16"/>
  </tileset>
- <tileset firstgid="124" name="button-down" tilewidth="16" tileheight="16" tilecount="1" columns="1">
+ <tileset firstgid="123" name="button-down" tilewidth="16" tileheight="16" tilecount="0" columns="1">
   <image source="assets/OBJECTS/button/button2.png" trans="ff00ff" width="16" height="16"/>
  </tileset>
  <layer id="6" name="ground" width="50" height="37">
@@ -32,7 +32,7 @@
 15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,0,0,0,0,0,0,0,
 15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,0,0,0,0,0,0,0,
 15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,0,0,0,0,0,0,0,
-15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,123,15,15,15,15,15,15,15,15,15,15,0,0,0,0,0,0,0,
+15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,122,15,15,15,15,15,15,15,15,15,15,0,0,0,0,0,0,0,
 15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,0,0,0,0,0,0,0,
 15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,0,0,0,0,0,0,0,
 15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,0,0,0,0,0,0,0,
@@ -62,15 +62,15 @@
  <layer id="7" name="objects" width="50" height="37">
   <data encoding="csv">
 0,0,0,0,0,0,0,49,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,120,0,0,0,49,0,0,0,0,0,2,0,122,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,120,0,0,0,49,0,0,0,0,0,2,0,121,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,49,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,49,49,49,49,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,61,61,61,61,61,0,0,0,10,10,10,10,10,10,10,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,120,0,122,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,120,0,121,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,88,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,95,0,0,122,0,75,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,95,0,0,121,0,75,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,43,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,45,45,45,0,45,45,45,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,120,0,45,53,45,0,45,52,45,0,120,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -233,6 +233,13 @@
    <point/>
   </object>
   <object id="60" name="lockedcaveexit" x="392.375" y="212.25">
+   <point/>
+  </object>
+  <object id="61" name="bee_sp_1" type="enemy" x="546" y="68">
+   <properties>
+    <property name="enemyType" value="bee"/>
+    <property name="maxCount" value="1"/>
+   </properties>
    <point/>
   </object>
  </objectgroup>

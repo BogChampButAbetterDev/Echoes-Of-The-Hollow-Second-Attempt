@@ -50,10 +50,9 @@ public:
     const std::vector<SDL_Rect>& getSolidRects() const { return m_solidRects; }
     const std::vector<std::unique_ptr<Interactable>>& getInteractables() const { return m_interactables; }
 
-    const std::unordered_map<std::string, SpawnPoint>& getSpawnPoints() const 
-    { 
-        return m_spawnPoints; 
-    }
+    const std::unordered_map<std::string, SpawnPoint>& getSpawnPoints() const { return m_spawnPoints; }
+
+    const std::vector<EnemySpawnPoint>& getEnemySpawnPoints() const { return m_enemySpawnPoints; }
 
     int m_mapWidth, m_mapHeight;
     int m_tileWidth, m_tileHeight;
@@ -70,6 +69,7 @@ private:
     std::vector<std::unique_ptr<Interactable>> m_interactables;
 
     std::unordered_map<std::string, SpawnPoint> m_spawnPoints;
+    std::vector<EnemySpawnPoint> m_enemySpawnPoints;
 
     int m_firstGid;
     int m_columns;

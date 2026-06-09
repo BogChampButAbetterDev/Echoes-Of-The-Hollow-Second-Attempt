@@ -158,7 +158,6 @@ void Bee::onDamage(float amount)
 
 void Bee::onDeath() 
 {
-    std::cout << "died\n";
     stateFlags = STATE_DEATH;
     actionState = ACTION_IDLE;
 }

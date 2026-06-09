@@ -1,6 +1,6 @@
 CXX = g++
 
-CXXFLAGS = -Wall -std=c++17 -I./src -I/ucrt64/include/SDL2 -g3 -O0
+CXXFLAGS = -Wall -std=c++17 -I./src -I/ucrt64/include/SDL2 -g -O0 
 
 SRC = \
 	src/main.cpp \
@@ -9,6 +9,7 @@ SRC = \
 	$(wildcard src/globals/*.cpp) \
 	$(wildcard src/game/*.cpp) \
 	$(wildcard src/game/actors/*.cpp) \
+	$(wildcard src/game/scenes/*.cpp) \
 	$(wildcard src/game/interactables/*.cpp)
 
 OBJ = $(SRC:src/%.cpp=obj/%.o)

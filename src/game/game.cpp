@@ -6,7 +6,6 @@ Game::Game() :
 m_win(nullptr),
 m_ren(),
 m_player(),
-m_bee(nullptr, {0, 0}),
 running(true),
 lastTime(0),
 delta(0),
@@ -164,7 +163,24 @@ void Game::loadScene(const std::string& mapId, const std::string& spawnName)
 
     // load scene if not visited before
     if (m_scenes.find(mapId) == m_scenes.end())
-        m_scenes.emplace(mapId, Scene(mapId, m_ren.renderer));
+    {
+        const SceneConfig& cfg = m_allScenes.getConfig(mapId);
+        m_scenes.emplace(mapId, Scene(mapId, m_ren.renderer, cfg));
+
+        // wire the factory so the spawner knows how to make enemies.
+        // add new else if beranches for every new enemy
+        m_scenes[mapId].spawner.setFactory(
+        [this](const std::string& type, float x, float y) -> std::unique_ptr<AI>
+        {
+            if (type == "bee")
+            {
+                auto b = std::make_unique<Bee>(m_ren.renderer, v2{x, y});
+                b->init(m_ren.renderer);
+                return b;
+            }
+            return nullptr;
+        });
+    }
 
     m_currentScene = &m_scenes[mapId];
 
@@ -252,7 +268,8 @@ void Game::mainLoop()
             checkDoorTransitions();
         }
 
-        m_bee.update(delta, solids, m_player.getX(), m_player.getY(), mapBounds, m_player);
+        m_currentScene->spawner.update(delta, solids, mapBounds,
+                                  m_player.getX(), m_player.getY(), m_player);
 
         m_sm.update(delta, *this);
 
@@ -260,7 +277,7 @@ void Game::mainLoop()
         m_currentScene->map.renderGround(m_ren.renderer, m_cam);
         m_currentScene->map.renderObjects(m_ren.renderer, m_cam);
         m_player.queueForRender(m_cam);
-        m_bee.queueForRender(m_cam);
+        m_currentScene->spawner.queueForRender(m_cam);
         m_ren.renderFromQueue();
         m_currentScene->map.renderOverhead(m_ren.renderer, m_cam);
         m_ui->render(m_ren.renderer);
@@ -337,8 +354,6 @@ void Game::init()
     m_ui = new UI(m_font);
 
     m_player = Player(m_ren.renderer, {0, 0});
-    m_bee    = Bee(m_ren.renderer, {10, 30});
-    m_bee.init(m_ren.renderer);
 
     loadScene("testworld.tmx", "default");
 }

@@ -26,8 +26,6 @@ enum class DIR_STATE
 class Bee : public AI
 {
 public:
-    float health;
-
     Bee() {}
     Bee(SDL_Renderer* ren, v2 pos);
 
