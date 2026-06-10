@@ -71,6 +71,21 @@ public:
 
     SDL_Rect getSwordHitbox();
 
+    SDL_Rect getFootRect()
+    {
+        int pw = m_src.w * SPRITE_RENDER_SCALE;
+        int ph = m_src.h * SPRITE_RENDER_SCALE;
+        const int footHeight = 15;
+        const int footOffsetY = ph - footHeight;
+        const int shrink = 4;
+        return {
+            (int)(x * MAP_RENDER_SCALE) + shrink,
+            (int)(y * MAP_RENDER_SCALE) + footOffsetY,
+            pw - shrink * 2,
+            footHeight
+        };
+    };
+
     float current_damage_amount = 10.0f;
 
     Input input;

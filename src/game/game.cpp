@@ -64,22 +64,21 @@ void Game::checkInteraction()
 
 void Game::checkContact()
 {
-    float px = m_player.getX();
-    float py = m_player.getY();
-    const float radius = 0.3f * m_currentScene->map.m_tileWidth;
-
     for (auto& interactable : m_currentScene->map.getInteractables())
     {
         if (!interactable->activateOnContact) continue;
 
-        float ix = interactable->tileX * m_currentScene->map.m_tileWidth;
-        float iy = interactable->tileY * m_currentScene->map.m_tileHeight;
+        SDL_Rect trigger =
+        {
+            interactable->x * MAP_RENDER_SCALE,
+            interactable->y * MAP_RENDER_SCALE,
+            interactable->w * MAP_RENDER_SCALE,
+            interactable->h * MAP_RENDER_SCALE
+        };
 
-        float dx = px - ix;
-        float dy = py - iy;
-        float dist = std::sqrt(dx * dx + dy * dy);
+        SDL_Rect player = m_player.getFootRect();
 
-        if (dist < radius)
+        if (SDL_HasIntersection(&player, &trigger))
         {
             bool wasPressedBefore = false;
             if (interactable->type == InteractType::BUTTON)
@@ -107,10 +106,6 @@ void Game::checkContact()
 
 void Game::checkDoorTransitions()
 {
-    float px = m_player.getX();
-    float py = m_player.getY();
-    const float radius = 0.5f * m_currentScene->map.m_tileWidth;
-
     for (auto& interactable : m_currentScene->map.getInteractables())
     {
         if (interactable->type != InteractType::DOOR) continue;
@@ -122,14 +117,17 @@ void Game::checkDoorTransitions()
         // if door has open/close state, only transition when open
         if (door->closedGid > 0 && !door->open) continue;
 
-        float ix = door->tileX * m_currentScene->map.m_tileWidth;
-        float iy = door->tileY * m_currentScene->map.m_tileHeight;
+        SDL_Rect zone =
+        {
+            door->x * MAP_RENDER_SCALE,
+            door->y * MAP_RENDER_SCALE,
+            door->w * MAP_RENDER_SCALE,
+            door->h * MAP_RENDER_SCALE
+        };
 
-        float dx = px - ix;
-        float dy = py - iy;
-        float dist = std::sqrt(dx * dx + dy * dy);
+        SDL_Rect player = m_player.getFootRect();
 
-        if (dist < radius)
+        if (SDL_HasIntersection(&player, &zone))
         {
             m_sm.requestScene(door->toMap, door->toSpawn);
             return;

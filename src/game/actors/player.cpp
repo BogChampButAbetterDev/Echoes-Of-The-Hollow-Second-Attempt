@@ -200,21 +200,6 @@ void Player::move(float delta, const std::vector<SDL_Rect>& solids)
         moving = false;
     }
 
-    int pw = m_src.w * SPRITE_RENDER_SCALE;
-    int ph = m_src.h * SPRITE_RENDER_SCALE;
-    const int footHeight = 15;
-    const int footOffsetY = ph - footHeight;
-    const int shrink = 4;
-
-    auto getFootRect = [&]() -> SDL_Rect {
-        return {
-            (int)(x * MAP_RENDER_SCALE) + shrink,
-            (int)(y * MAP_RENDER_SCALE) + footOffsetY,
-            pw - shrink * 2,
-            footHeight
-        };
-    };
-
     // resolve X
     float oldX = x;
     x += dx;

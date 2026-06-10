@@ -261,16 +261,29 @@ void TileMap::loadTMX(const char* path, SDL_Renderer* ren)
                 {
                     int closedGid = objType == "closed_door" ? pixelToGid("world", 32, 112) : 0;
                     int openedGid = objType == "closed_door" ? pixelToGid("world", 48, 112) : 0;
+                    
+                    int x = (int)obj->FloatAttribute("x");
+                    int y = (int)obj->FloatAttribute("y");
+                    int w = (int)obj->FloatAttribute("width");
+                    int h = (int)obj->FloatAttribute("height");
 
                     auto door = std::make_unique<Door>(tx, ty, openedGid, closedGid);
                     door->name    = objName ? objName : "";
                     door->toMap   = toMap;
                     door->toSpawn = toSpawn;
+                    door->x       = x;
+                    door->y       = y;
+                    door->w       = w;
+                    door->h       = h;
 
                     m_interactables.push_back(std::move(door));
                 }
                 else if (objType == "button")
                 {
+                    int x = (int)obj->FloatAttribute("x");
+                    int y = (int)obj->FloatAttribute("y");
+                    int w = (int)obj->FloatAttribute("width");
+                    int h = (int)obj->FloatAttribute("height");
                     auto button = std::make_unique<Button>(tx, ty);
                     button->name       = objName ? objName : "";
                     button->targetName = targetName;
@@ -278,6 +291,10 @@ void TileMap::loadTMX(const char* path, SDL_Renderer* ren)
                     button->upGid      = getFirstGid("button-up");
                     button->downGid    = getFirstGid("button-down");
                     button->layerName  = layerName;
+                    button->x          = x;
+                    button->y          = y;
+                    button->w          = w;
+                    button->h          = h;
                     m_interactables.push_back(std::move(button));
                 }
 

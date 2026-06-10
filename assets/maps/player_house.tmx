@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="12">
- <tileset firstgid="1" name="tiles" tilewidth="16" tileheight="16" tilecount="1440" columns="40">
+ <tileset firstgid="1" name="tiles" tilewidth="16" tileheight="16" tilecount="0" columns="40">
   <image source="assets/WorldTiles/Overworld.png" width="640" height="576"/>
  </tileset>
  <layer id="1" name="ground" width="30" height="20">
@@ -87,7 +87,7 @@
   <object id="9" x="307" y="113" width="10.3333" height="13"/>
  </objectgroup>
  <objectgroup id="5" name="interactables">
-  <object id="10" name="exit" x="227.333" y="240.667" width="25" height="14.3333">
+  <object id="10" name="exit" x="218.969" y="240.667" width="42.4545" height="14.3333">
    <properties>
     <property name="spawn" value="default"/>
     <property name="to" value="testworld.tmx"/>
