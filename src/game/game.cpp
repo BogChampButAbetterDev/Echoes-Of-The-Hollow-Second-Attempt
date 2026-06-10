@@ -139,6 +139,7 @@ void Game::checkDoorTransitions()
 
 void Game::loadScene(const std::string& mapId, const std::string& spawnName)
 {
+    std::cout << "loading scene\n";
     // save current scene state
     if (m_currentScene)
     {
@@ -166,6 +167,7 @@ void Game::loadScene(const std::string& mapId, const std::string& spawnName)
     {
         const SceneConfig& cfg = m_allScenes.getConfig(mapId);
         m_scenes.emplace(mapId, Scene(mapId, m_ren.renderer, cfg));
+        std::cout << "scene placed in m_scenes\n";
 
         // wire the factory so the spawner knows how to make enemies.
         // add new else if beranches for every new enemy
@@ -180,6 +182,7 @@ void Game::loadScene(const std::string& mapId, const std::string& spawnName)
             }
             return nullptr;
         });
+        std::cout << "setup enemy factory\n";
     }
 
     m_currentScene = &m_scenes[mapId];
@@ -355,5 +358,5 @@ void Game::init()
 
     m_player = Player(m_ren.renderer, {0, 0});
 
-    loadScene("testworld.tmx", "default");
+    loadScene("player_house.tmx", "default");
 }

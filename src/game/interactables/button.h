@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include "engine/interactable.h"
 
 struct Button : public Interactable

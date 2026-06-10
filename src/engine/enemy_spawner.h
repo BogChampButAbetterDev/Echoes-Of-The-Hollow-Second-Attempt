@@ -8,11 +8,6 @@
 #include "globals/globals.h"
 #include "AI_base.h"
 
-struct SceneConfig
-{
-    std::vector<EnemyDef> enemyDefs;
-};
-
 class EnemySpawner
 {
 public:

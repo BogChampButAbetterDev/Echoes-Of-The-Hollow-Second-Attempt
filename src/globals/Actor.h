@@ -38,3 +38,8 @@ struct EnemyDef
     float respawnDelay = 5.0f;
     bool  unique = false;
 };
+
+struct SceneConfig
+{
+    std::vector<EnemyDef> enemyDefs;
+};

@@ -126,7 +126,8 @@ int EnemySpawner::countAlive(const std::string &type) const
     }
     return count;
 }
-const EnemyDef *EnemySpawner::defFor(const std::string &type) const
+
+const EnemyDef* EnemySpawner::defFor(const std::string &type) const
 {
     for (const auto& d : m_config.enemyDefs)
         if (d.type == type) return &d;
