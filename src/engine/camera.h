@@ -20,8 +20,8 @@ struct Camera
     // trigger a pan to a position, then return back to original position
     void panTo(float worldX, float worldY, float holdTime = 1.5f, float speed = 200.0f)
     {
-        m_panTargetX = std::max(0.0f, std::min(worldX - w / 2, (float)(mapW - w)));
-        m_panTargetY = std::max(0.0f, std::min(worldY - h / 2, (float)(mapH - h)));
+        m_panTargetX  = std::max(0.0f, std::min(worldX - w / 2, (float)(mapW - w)));
+        m_panTargetY  = std::max(0.0f, std::min(worldY - h / 2, (float)(mapH - h)));
         m_holdTime    = holdTime;
         m_holdTimer   = 0.0f;
         m_panSpeed    = speed;

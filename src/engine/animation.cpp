@@ -2,30 +2,28 @@
 
 void Animation::load(SDL_Renderer* ren, const char* path)
 {
-    m_tex = Texture().loadTex(ren, path);
+    m_tex = Texture::loadTex(ren, path);
 }
 
-void Animation::update(float delta)
-{
-    if (m_frameTime == 0.0f) return;
-    
-    m_timer += delta;
+void Animation::update(float delta) {
+    if (m_frameTime == 0.0f || m_frames.empty()) return;
+    if (!m_loops && m_currentFrame >= (int)m_frames.size() - 1) return;
 
-    if (m_timer >= m_frameTime)
-    {
+    m_timer += delta;
+    if (m_timer >= m_frameTime) {
         m_timer = 0.0f;
-        int next = m_currentFrame + 1;
-        if (next >= (int)m_frames.size())
-        {
-            if (m_loops) m_currentFrame = 0;
+        m_currentFrame++;
+        
+        if (m_currentFrame >= (int)m_frames.size()) {
+            if (m_loops) {
+                m_currentFrame = 0;
+            } else {
+                m_currentFrame = (int)m_frames.size() - 1; // Hold last frame safely
+            }
         }
-        else 
-        {
-            m_currentFrame = next;
-        }
-        //m_currentFrame = (m_currentFrame + 1) % m_frames.size();
     }
 }
+
 
 SDL_Rect Animation::getCurrentFrame()
 {

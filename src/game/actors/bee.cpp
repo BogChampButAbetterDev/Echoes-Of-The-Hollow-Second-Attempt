@@ -19,7 +19,9 @@ void Bee::init(SDL_Renderer* ren)
 void Bee::update(float delta, const std::vector<SDL_Rect>& solids, float px, float py, SDL_Rect mapBounds, Player& player)
 {
     m_iframeTimer -= delta;
+    m_isRedTimer -= delta;
     if (m_iframeTimer < 0.0f) m_iframeTimer = 0.0f;
+    if (m_isRedTimer < 0.0f) m_isRedTimer = 0.0f;
     stateMachine(px, py, player); // decide what to do
     move(delta, solids, mapBounds, px, py); // act
     matchAnimation(); // animate
@@ -132,6 +134,18 @@ void Bee::move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBou
     y = std::max(0.0f, std::min(y, maxY));
 }
 
+void Bee::tintSprite()
+{
+    if (m_isRedTimer != 0.0f)
+    {
+        SDL_SetTextureColorMod(currentAnim->getTexture(), 255, 0, 0);
+    } 
+    else 
+    {
+        SDL_SetTextureColorMod(currentAnim->getTexture(), 255, 0, 0); // no tint 
+    }
+}
+
 SDL_Rect Bee::getHitbox()
 {
     return {
@@ -219,7 +233,8 @@ void Bee::matchAnimation()
 
     if (stateFlags == STATE_PAIN)
     {
-        
+        m_isRedTimer = 0.5f; // sprite is red while invincible
+        tintSprite();
     }
     else if (stateFlags == STATE_DEATH)
     {

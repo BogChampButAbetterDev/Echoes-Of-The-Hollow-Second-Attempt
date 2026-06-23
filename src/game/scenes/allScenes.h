@@ -4,6 +4,7 @@
 #include "testmap.h"
 #include "testCave1.h"
 #include "player_house.h"
+#include "castle_town.h"
 
 class AllScenes
 {
@@ -13,6 +14,7 @@ public:
         reg["testworld.tmx"] = TestMapConfig();
         reg["test_cave.tmx"] = TestCaveConfig();
         reg["player_house.tmx"] = _pHouseConfig();
+        reg["castle_town.tmx"] = _TownConfig();
     }
  
     // Returns the config for a map, or an empty config if unregistered.

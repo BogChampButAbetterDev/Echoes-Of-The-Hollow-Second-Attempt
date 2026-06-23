@@ -191,6 +191,7 @@ void Player::move(float delta, const std::vector<SDL_Rect>& solids)
         // normalize diagonals
         if (dx != 0 && dy != 0)
         {
+            // what tf is this
             dx *= 0.7071f;
             dy *= 0.7071f;
         }

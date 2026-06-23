@@ -13,6 +13,7 @@ m_currentScene(nullptr),
 m_sm(nullptr),
 m_cam(Camera(SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0)),
 m_font(nullptr),
+m_cursor(nullptr),
 m_dialogueTex(nullptr),
 m_fps(0),
 m_fpsTimer(0),
@@ -180,7 +181,6 @@ void Game::loadScene(const std::string& mapId, const std::string& spawnName)
             }
             return nullptr;
         });
-        std::cout << "setup enemy factory\n";
     }
 
     m_currentScene = &m_scenes[mapId];
@@ -235,57 +235,73 @@ void Game::mainLoop()
             SDL_SetWindowTitle(m_win, title.c_str());
         }
 
-        pollInput(m_player.input, running);
+        pollInput(m_ui->m_isMenuOpen ? m_cursor->input : m_player.input, running);
 
         if (!running) break;
 
-        bool interactPressed = m_player.input.interact && !prevInteract;
-        prevInteract = m_player.input.interact;
-
-        if (interactPressed)
+        if (!m_ui->m_isMenuOpen)
         {
-            if (m_ui->isDialogueOpen())
-                m_ui->advance(m_ren.renderer);
-            else
-                checkInteraction();
+            bool interactPressed = m_player.input.interact && !prevInteract;
+            prevInteract = m_player.input.interact;
+
+            if (interactPressed)
+            {
+                if (m_ui->isDialogueOpen())
+                    m_ui->advance(m_ren.renderer);
+                else
+                    checkInteraction();
+            }
+
+            const auto& solids = m_currentScene->map.getSolidRects();
+            SDL_Rect mapBounds = 
+            {
+                0, 0,
+                m_currentScene->map.m_mapWidth  * m_currentScene->map.m_tileWidth  * MAP_RENDER_SCALE,
+                m_currentScene->map.m_mapHeight * m_currentScene->map.m_tileHeight * MAP_RENDER_SCALE
+            };
+
+            m_cam.update(delta,
+                m_player.getX() * MAP_RENDER_SCALE,
+                m_player.getY() * MAP_RENDER_SCALE);
+
+            if (!m_ui->isDialogueOpen() && !m_cam.inCutscene && !m_sm.isTransitioning())
+            {
+                m_player.update(delta, m_cam, solids);
+                checkContact();
+                checkDoorTransitions();
+            }
+
+            m_currentScene->spawner.update(delta, solids, mapBounds,
+                                    m_player.getX(), m_player.getY(), m_player);
+
+            m_sm.update(delta, *this);
         }
-
-        const auto& solids = m_currentScene->map.getSolidRects();
-        SDL_Rect mapBounds = 
+        else
         {
-            0, 0,
-            m_currentScene->map.m_mapWidth  * m_currentScene->map.m_tileWidth  * MAP_RENDER_SCALE,
-            m_currentScene->map.m_mapHeight * m_currentScene->map.m_tileHeight * MAP_RENDER_SCALE
-        };
-
-        m_cam.update(delta,
-            m_player.getX() * MAP_RENDER_SCALE,
-            m_player.getY() * MAP_RENDER_SCALE);
-
-        if (!m_ui->isDialogueOpen() && !m_cam.inCutscene && !m_sm.isTransitioning())
-        {
-            m_player.update(delta, m_cam, solids);
-            checkContact();
-            checkDoorTransitions();
+            m_cursor->update(delta);
         }
-
-        m_currentScene->spawner.update(delta, solids, mapBounds,
-                                  m_player.getX(), m_player.getY(), m_player);
-
-        m_sm.update(delta, *this);
 
         m_ren.beginFrame();
-        m_currentScene->map.renderGround(m_ren.renderer, m_cam);
-        m_currentScene->map.renderObjects(m_ren.renderer, m_cam);
-        m_player.queueForRender(m_cam);
-        m_currentScene->spawner.queueForRender(m_cam);
+        if (!m_ui->m_isMenuOpen)
+        {   
+            m_currentScene->map.renderGround(m_ren.renderer, m_cam);
+            m_currentScene->map.renderObjects(m_ren.renderer, m_cam);
+            m_player.queueForRender(m_cam);
+            m_currentScene->spawner.queueForRender(m_cam);
+        }
+        else 
+        {
+            m_cursor->queueForRender();
+        }
         m_ren.renderFromQueue();
-        m_currentScene->map.renderOverhead(m_ren.renderer, m_cam);
+        if (!m_ui->m_isMenuOpen) m_currentScene->map.renderOverhead(m_ren.renderer, m_cam);
         m_ui->render(m_ren.renderer);
         m_sm.render(m_ren.renderer); // render fade
 
+        bool noControllerWarning = m_ui->m_isMenuOpen ? m_cursor->input.noControllerWarning : m_player.input.noControllerWarning;
+
         #if USING_CONTROLLER
-            if (m_player.input.noControllerWarning)
+            if (noControllerWarning)
             {
                 SDL_Rect shadow = {SCREEN_WIDTH/2 - 99, SCREEN_HEIGHT - 50, 198, 35};
                 SDL_SetRenderDrawBlendMode(m_ren.renderer, SDL_BLENDMODE_BLEND);
@@ -322,6 +338,8 @@ void Game::end()
 {
     Texture::clearCache();
     if (m_dialogueTex) SDL_DestroyTexture(m_dialogueTex);
+    delete m_cursor;
+    m_cursor = nullptr;
     delete m_ui;
     m_ui = nullptr;
     delete m_font;
@@ -353,8 +371,10 @@ void Game::init()
 {
     m_font = new Font(FONT_PATH("font.ttf"), TEXT_SIZE_DEFAULT);
     m_ui = new UI(m_font);
+    m_cursor = new Cursor(m_ren.renderer);
 
     m_player = Player(m_ren.renderer, {0, 0});
 
+    m_ui->m_isMenuOpen = true;
     loadScene("player_house.tmx", "default");
 }

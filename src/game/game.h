@@ -6,6 +6,7 @@
 #include "scenes/allScenes.h"
 #include "engine/font.h"
 #include "engine/ui.h"
+#include "engine/ui_cursor.h"
 #include "actors/player.h"
 #include "actors/bee.h"
 
@@ -41,6 +42,7 @@ private:
 
     Font* m_font;
     UI* m_ui = nullptr;
+    Cursor* m_cursor;
 
     void init();
     void checkInteraction();

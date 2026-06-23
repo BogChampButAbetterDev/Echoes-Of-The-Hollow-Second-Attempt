@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include <vector>
+#include "texture.h"
 #include "font.h"
 #include "globals/globals.h"
 
@@ -18,6 +19,16 @@ public:
     bool isLastPage() const { return m_currentPage >= (int)m_pages.size() - 1; }
 
     void render(SDL_Renderer* ren);
+
+    struct UiButton
+    {
+        UiButton(const char* texPath, SDL_Renderer* ren, int x, int y, int w, int h);
+        bool isClicked(float cX, float cY);
+        SDL_Texture* m_tex;
+        SDL_Rect m_rect;
+    };
+
+    bool m_isMenuOpen;
 
 private:
     Font* m_font;

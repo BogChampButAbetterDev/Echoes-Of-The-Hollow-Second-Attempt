@@ -72,10 +72,14 @@ private:
 
     float m_iframeTimer = 0.0f;
 
+    float m_isRedTimer = 0.0f;
+
     SDL_Rect getHitbox();
 
     void stateMachine(float px, float py, Player& player);
     void matchAnimation();
     void addFrames(SDL_Renderer* ren);
     void move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBounds, float px, float py);
+
+    void tintSprite();
 };

@@ -65,3 +65,17 @@ void UI::renderDialogue(SDL_Renderer *ren)
         SDL_RenderCopy(ren, m_dialogueTex, nullptr, &dst);
     }
 }
+
+UI::UiButton::UiButton(const char* texPath, SDL_Renderer* ren, int x, int y, int w, int h)
+{
+    m_tex = Texture::loadTex(ren, texPath);
+    m_rect = 
+    {
+        x, y, w, h
+    };
+}
+
+bool UI::UiButton::isClicked(float cX, float cY)
+{
+    return false;
+}

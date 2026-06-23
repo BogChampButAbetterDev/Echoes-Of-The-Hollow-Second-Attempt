@@ -1,6 +1,6 @@
 CXX = g++
 
-CXXFLAGS = -Wall -std=c++17 -I./src -I/ucrt64/include/SDL2 -g -O0 
+CXXFLAGS = -Wall -g -O0 -std=c++17 -I./src -I/ucrt64/include/SDL2 
 
 SRC = \
 	src/main.cpp \

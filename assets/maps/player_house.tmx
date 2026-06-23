@@ -89,8 +89,8 @@
  <objectgroup id="5" name="interactables">
   <object id="10" name="exit" x="218.969" y="240.667" width="42.4545" height="14.3333">
    <properties>
-    <property name="spawn" value="default"/>
-    <property name="to" value="testworld.tmx"/>
+    <property name="spawn" value="from_house"/>
+    <property name="to" value="castle_town.tmx"/>
     <property name="type" value="door"/>
    </properties>
   </object>

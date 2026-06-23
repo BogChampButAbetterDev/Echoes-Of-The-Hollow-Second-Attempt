@@ -13,7 +13,7 @@ class Texture
 {
 public:
 #ifndef __3DS__
-    SDL_Texture* loadTex(SDL_Renderer* ren, const char* path);
+    static SDL_Texture* loadTex(SDL_Renderer* ren, const char* path);
     static void clearCache();
 #else
     static C2D_SpriteSheet loadSheet(const char* path);
