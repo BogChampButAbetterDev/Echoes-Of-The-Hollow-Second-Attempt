@@ -42,6 +42,7 @@ void pollInput(Input& input, bool& running)
     // --- controller ---
     bool  gc_w = false, gc_a = false, gc_s = false, gc_d = false;
     bool  gc_interact = false, gc_escape = false, gc_attack = false;
+    bool gc_start = false;
     float gc_axisX = 0.0f, gc_axisY = 0.0f;
 
     if (input.controller)
@@ -71,7 +72,8 @@ void pollInput(Input& input, bool& running)
 
         gc_interact = SDL_GameControllerGetButton(input.controller, SDL_CONTROLLER_BUTTON_A);
         gc_attack   = SDL_GameControllerGetButton(input.controller, SDL_CONTROLLER_BUTTON_B);
-        gc_escape   = SDL_GameControllerGetButton(input.controller, SDL_CONTROLLER_BUTTON_START);
+        gc_escape   = SDL_GameControllerGetButton(input.controller, SDL_CONTROLLER_BUTTON_GUIDE);
+        gc_start    = SDL_GameControllerGetButton(input.controller, SDL_CONTROLLER_BUTTON_START);
     }
 
     // --- merge ---
@@ -82,6 +84,7 @@ void pollInput(Input& input, bool& running)
     input.interact = kb_interact || gc_interact;
     input.escape   = kb_escape   || gc_escape;
     input.attack   = kb_attack   || gc_attack;
+    input.start    = gc_start;
 
     // keyboard drives axis too so raycasting works without a controller
     if (!input.controller)

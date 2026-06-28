@@ -15,7 +15,7 @@ struct Door : public Interactable
     Door(int tx, int ty, int openedGid, int closedGid)
     {
         tileX = tx; tileY = ty;
-        type = InteractType::DOOR;
+        type = InteractType::LOADZONE;
         this->openedGid = openedGid;
         this->closedGid = closedGid;
         activateOnContact = true;

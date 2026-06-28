@@ -329,7 +329,7 @@ void TileMap::loadTMX(const char* path, SDL_Renderer* ren)
 
                 for (auto& other : m_interactables)
                 {
-                    if (other->type != InteractType::DOOR) continue;
+                    if (other->type != InteractType::LOADZONE) continue;
                     if (other->name != button->targetName)  continue;
 
                     Door* targetDoor = static_cast<Door*>(other.get());

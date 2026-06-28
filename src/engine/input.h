@@ -9,6 +9,8 @@ struct Input
     bool interact; // space
     bool escape;
 
+    bool start;
+
     // raw analog | Normalized -1.0 to 1.0
     float axisX = 0.0f;
     float axisY = 0.0f;

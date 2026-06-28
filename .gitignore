@@ -24,6 +24,9 @@ build/
 # VS Code
 .vscode/
 
+# Backgrounds folder is too large and most are unused
+assets/backgrounds/all/
+
 # OS junk
 .DS_Store
 Thumbs.db

@@ -41,9 +41,9 @@ private:
     void rebuildTextures(SDL_Renderer* ren);
     int hitTest(float cx, float cy) const; // returns index or -1
 
-    SDL_Texture* m_bg;
+    SDL_Texture* m_bg = nullptr;
 
-    Font* m_font;
+    Font* m_font = nullptr;
     std::vector<MenuItem> m_items;
     std::vector<SDL_Texture*> m_itemTextures;
     std::vector<SDL_Rect> m_itemRects;

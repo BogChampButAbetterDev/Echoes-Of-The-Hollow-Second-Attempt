@@ -23,6 +23,8 @@ public:
     UI* getUI() {return m_ui;}
     void setRunState(bool val) {running = val;}
 
+    void quitToMenu();
+
 private:
     SDL_Window* createWin();
 

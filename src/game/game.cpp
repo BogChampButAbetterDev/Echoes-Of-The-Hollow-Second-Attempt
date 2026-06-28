@@ -109,7 +109,7 @@ void Game::checkDoorTransitions()
 {
     for (auto& interactable : m_currentScene->map.getInteractables())
     {
-        if (interactable->type != InteractType::DOOR) continue;
+        if (interactable->type != InteractType::LOADZONE) continue;
 
         Door* door = static_cast<Door*>(interactable.get());
 
@@ -257,6 +257,11 @@ void Game::mainLoop()
 
         pollInput(m_ui->hasOpenScreen() ? m_cursor->input : m_player.input, running);
 
+        if (m_player.input.start && !m_ui->hasOpenScreen())
+        {
+            m_ui->openMenu(Menus::pauseMenu(m_ren.renderer, this));
+        }
+
         if (!running) break;
 
         if (!m_ui->hasOpenScreen())
@@ -355,7 +360,14 @@ void Game::mainLoop()
     }
 }
 
-SDL_Window* Game::createWin()
+void Game::quitToMenu()
+{
+    m_currentScene = nullptr;
+    m_scenes.clear();
+    m_ui->openMenu(Menus::mainMenuDEBUG(m_ren.renderer, this));
+}
+
+SDL_Window *Game::createWin()
 {
     SDL_Window* win = SDL_CreateWindow(
         "you wont see this",

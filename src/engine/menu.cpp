@@ -6,6 +6,9 @@ MenuItem::MenuItem(std::string label, std::function<void()> onSelect, bool close
 Menu::Menu(Font* font, std::vector<MenuItem> items)
 : m_font(font), m_items(std::move(items))
 {
+    // prevent previous button presses from being registered and
+    // wait for new input when a new menu loads
+    m_prevInteract = true;
 }
 
 MenuItem::MenuItem(std::string label)

@@ -5,7 +5,7 @@
 enum class InteractType
 {
     SIGN,
-    DOOR,
+    LOADZONE,
     CHEST,
     BUTTON
 };
