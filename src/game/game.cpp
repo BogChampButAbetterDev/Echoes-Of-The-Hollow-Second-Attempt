@@ -166,23 +166,29 @@ void Game::loadScene(const std::string& mapId, const std::string& spawnName)
     {
         const SceneConfig& cfg = m_allScenes.getConfig(mapId);
         m_scenes.emplace(mapId, Scene(mapId, m_ren.renderer, cfg));
-        std::cout << "scene placed in m_scenes\n";
+         
 
         // wire the factory so the spawner knows how to make enemies.
         // add new else if beranches for every new enemy
+         
         m_scenes[mapId].spawner.setFactory(
         [this](const std::string& type, float x, float y) -> std::unique_ptr<AI>
         {
+             
             if (type == "bee")
             {
                 auto b = std::make_unique<Bee>(m_ren.renderer, v2{x, y});
+                 
                 b->init(m_ren.renderer);
+                 
                 return b;
             }
+             
             return nullptr;
         });
     }
 
+     
     m_currentScene = &m_scenes[mapId];
 
     // restore triggered state
@@ -199,9 +205,15 @@ void Game::loadScene(const std::string& mapId, const std::string& spawnName)
 
     // place player at spawn point
     const auto& spawns = m_currentScene->map.getSpawnPoints();
+     
     auto it = spawns.find(spawnName);
+     
     if (it != spawns.end())
+    {
+         
         m_player.setPosition(it->second.x, it->second.y);
+         
+    }
     else
     {
         m_player.setPosition(0, 0);
@@ -211,6 +223,14 @@ void Game::loadScene(const std::string& mapId, const std::string& spawnName)
     m_cam = Camera(SCREEN_WIDTH, SCREEN_HEIGHT,
         m_currentScene->map.m_mapWidth  * m_currentScene->map.m_tileWidth  * MAP_RENDER_SCALE,
         m_currentScene->map.m_mapHeight * m_currentScene->map.m_tileHeight * MAP_RENDER_SCALE);
+
+    m_player.input.controller = m_cursor->input.controller;
+
+    if (!m_allScenes.getConfig(m_currentScene->id).areaName.empty())
+    {
+        std::cout << "show label\n";
+        m_ui->showAreaLabel(m_ren.renderer, m_allScenes.getConfig(m_currentScene->id).areaName);
+    }
 }
 
 void Game::mainLoop()
@@ -235,11 +255,11 @@ void Game::mainLoop()
             SDL_SetWindowTitle(m_win, title.c_str());
         }
 
-        pollInput(m_ui->m_isMenuOpen ? m_cursor->input : m_player.input, running);
+        pollInput(m_ui->hasOpenScreen() ? m_cursor->input : m_player.input, running);
 
         if (!running) break;
 
-        if (!m_ui->m_isMenuOpen)
+        if (!m_ui->hasOpenScreen())
         {
             bool interactPressed = m_player.input.interact && !prevInteract;
             prevInteract = m_player.input.interact;
@@ -279,29 +299,30 @@ void Game::mainLoop()
         else
         {
             m_cursor->update(delta);
+            m_ui->handleInput(*m_cursor);
         }
 
+        m_ui->update(delta);
+
         m_ren.beginFrame();
-        if (!m_ui->m_isMenuOpen)
+        if (!m_ui->hasOpenScreen())
         {   
             m_currentScene->map.renderGround(m_ren.renderer, m_cam);
             m_currentScene->map.renderObjects(m_ren.renderer, m_cam);
             m_player.queueForRender(m_cam);
             m_currentScene->spawner.queueForRender(m_cam);
         }
-        else 
-        {
-            m_cursor->queueForRender();
-        }
-        m_ren.renderFromQueue();
-        if (!m_ui->m_isMenuOpen) m_currentScene->map.renderOverhead(m_ren.renderer, m_cam);
-        m_ui->render(m_ren.renderer);
-        m_sm.render(m_ren.renderer); // render fade
 
-        bool noControllerWarning = m_ui->m_isMenuOpen ? m_cursor->input.noControllerWarning : m_player.input.noControllerWarning;
+        m_ren.renderFromQueue();
+        if (!m_ui->hasOpenScreen()) m_currentScene->map.renderOverhead(m_ren.renderer, m_cam);
+        m_sm.render(m_ren.renderer); // render fade
+        m_ui->render(m_ren.renderer);
+        if (m_ui->hasOpenScreen()) m_cursor->render(m_ren.renderer);
+
+        bool showNoControllerWarning = m_ui->hasOpenScreen() ? m_cursor->input.noControllerWarning : m_player.input.noControllerWarning;
 
         #if USING_CONTROLLER
-            if (noControllerWarning)
+            if (showNoControllerWarning)
             {
                 SDL_Rect shadow = {SCREEN_WIDTH/2 - 99, SCREEN_HEIGHT - 50, 198, 35};
                 SDL_SetRenderDrawBlendMode(m_ren.renderer, SDL_BLENDMODE_BLEND);
@@ -334,22 +355,6 @@ void Game::mainLoop()
     }
 }
 
-void Game::end()
-{
-    Texture::clearCache();
-    if (m_dialogueTex) SDL_DestroyTexture(m_dialogueTex);
-    delete m_cursor;
-    m_cursor = nullptr;
-    delete m_ui;
-    m_ui = nullptr;
-    delete m_font;
-    m_font = nullptr;
-    Font::quit();
-    SDL_DestroyRenderer(m_ren.renderer);
-    SDL_DestroyWindow(m_win);
-    SDL_Quit();
-}
-
 SDL_Window* Game::createWin()
 {
     SDL_Window* win = SDL_CreateWindow(
@@ -375,6 +380,21 @@ void Game::init()
 
     m_player = Player(m_ren.renderer, {0, 0});
 
-    m_ui->m_isMenuOpen = true;
-    loadScene("player_house.tmx", "default");
+    m_ui->openMenu(Menus::mainMenuDEBUG(m_ren.renderer, this));
+}
+
+void Game::end()
+{
+    Texture::clearCache();
+    if (m_dialogueTex) SDL_DestroyTexture(m_dialogueTex);
+    delete m_cursor;
+    m_cursor = nullptr;
+    delete m_ui;
+    m_ui = nullptr;
+    delete m_font;
+    m_font = nullptr;
+    Font::quit();
+    SDL_DestroyRenderer(m_ren.renderer);
+    SDL_DestroyWindow(m_win);
+    SDL_Quit();
 }

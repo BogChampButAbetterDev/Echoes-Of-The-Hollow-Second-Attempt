@@ -42,4 +42,5 @@ struct EnemyDef
 struct SceneConfig
 {
     std::vector<EnemyDef> enemyDefs;
+    std::string areaName;
 };

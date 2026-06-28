@@ -5,6 +5,7 @@ inline SceneConfig testCaveConfig()
 {
     SceneConfig cfg;
     // just a loading zone test. no enemies
+    cfg.areaName = "test 2";
     return cfg;
 }
 

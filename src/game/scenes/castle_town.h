@@ -4,6 +4,7 @@
 inline SceneConfig TownConfig()
 {
     SceneConfig cfg;
+    cfg.areaName = "Castle Town";
     return cfg;
 }
 

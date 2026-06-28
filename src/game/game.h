@@ -9,6 +9,7 @@
 #include "engine/ui_cursor.h"
 #include "actors/player.h"
 #include "actors/bee.h"
+#include "menus.h"
 
 class Game
 {
@@ -18,6 +19,9 @@ public:
     void end();
 
     void loadScene(const std::string& mapId, const std::string& spawnName);
+
+    UI* getUI() {return m_ui;}
+    void setRunState(bool val) {running = val;}
 
 private:
     SDL_Window* createWin();

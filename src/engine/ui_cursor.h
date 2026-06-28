@@ -5,6 +5,7 @@
 #include "renderer/ren_queue.h"
 #include "input.h"
 #include "globals/globals.h"
+#include "globals/Actor.h"
 
 class Cursor
 {
@@ -20,7 +21,9 @@ public:
     }
 
     void update(float dt);
-    void queueForRender();
+    void render(SDL_Renderer* ren);
+
+    v2 getPos() const {v2 pos; pos.x = x; pos.y = y; return pos;}
 
     Input input;
 

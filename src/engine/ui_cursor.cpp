@@ -21,10 +21,10 @@ void Cursor::update(float dt)
     m_rect = currentAnim->getCurrentFrame();
 }
 
-void Cursor::queueForRender()
+void Cursor::render(SDL_Renderer* ren)
 {
-    submit(currentAnim->getTexture(), m_rect, (int)x, (int)y,
-        m_rect.w * SPRITE_RENDER_SCALE, m_rect.h * SPRITE_RENDER_SCALE);
+    SDL_Rect dst = {(int)x, (int)y, m_rect.w * SPRITE_RENDER_SCALE, m_rect.h * SPRITE_RENDER_SCALE};
+    SDL_RenderCopy(ren, currentAnim->getTexture(), &m_rect, &dst);
 }
 
 void Cursor::move(float dt) 
@@ -34,7 +34,6 @@ void Cursor::move(float dt)
     float dx = input.axisX;
     float dy = input.axisY;
     
-    // Normalize diagonal input vector so diagonal speed isn't too fast
     if (dx != 0.f && dy != 0.f) {
         dx *= 0.7071f; // 1 / sqrt(2)
         dy *= 0.7071f;

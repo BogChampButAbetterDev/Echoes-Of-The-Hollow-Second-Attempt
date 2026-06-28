@@ -4,6 +4,7 @@
 inline SceneConfig pHouseConfig()
 {
     SceneConfig cfg;
+    cfg.areaName = "Your House";
     return cfg;
 }
 

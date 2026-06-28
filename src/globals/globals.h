@@ -1,6 +1,7 @@
 #pragma once
 
 #define ASSET_PATH "assets/"
+#define BG_PATH(x)     ASSET_PATH "backgrounds/" x
 #define FONT_PATH(x)   ASSET_PATH "font/" x
 #define MAP_PATH(x)    ASSET_PATH "maps/" x
 #define PLAYER_PATH(x) ASSET_PATH "player/" x

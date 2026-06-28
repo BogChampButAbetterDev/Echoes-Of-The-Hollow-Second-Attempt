@@ -14,6 +14,8 @@ public:
 
     SDL_Texture* renderText(SDL_Renderer* ren, std::string& text, SDL_Color color, int wrapWidth = 0);
 
+    TTF_Font* getFont() const {return m_font;}
+
 private:
     TTF_Font* m_font;
 };

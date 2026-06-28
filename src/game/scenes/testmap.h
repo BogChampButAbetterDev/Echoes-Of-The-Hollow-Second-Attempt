@@ -4,6 +4,7 @@
 inline SceneConfig testMapConfig()
 {
     SceneConfig cfg;
+    cfg.areaName = "Test";
     cfg.enemyDefs.push_back({"bee", 5.0f, false});
     return cfg;
 }
