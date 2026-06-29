@@ -12,9 +12,9 @@ void TileMap::loadTMX(const char* path, SDL_Renderer* ren)
 {
     XMLDocument doc;
     if (doc.LoadFile(path) != XML_SUCCESS)
-    {
+    { 
         std::cout << "Failed to load TMX: " << path << "\n";
-        exit(1);
+        return;
     }
 
     XMLElement* map = doc.FirstChildElement("map");
@@ -38,8 +38,32 @@ void TileMap::loadTMX(const char* path, SDL_Renderer* ren)
 
         XMLElement* image = tileset->FirstChildElement("image");
         const char* tilesetPath = image->Attribute("source");
+
         Texture texture;
         info.tex = texture.loadTex(ren, tilesetPath);
+        if (info.tex == nullptr)
+        {
+            std::cout << "attempting to clean path str\n";
+            std::string input = tilesetPath;
+            const std::string find = "../";
+            const std::string replace = "assets/";
+
+            size_t pos = 0;
+
+            while ((pos = input.find(find, pos)) != std::string::npos)
+            {
+                input.replace(pos, find.length(), replace);
+                pos += replace.length();
+            }
+
+            info.tex = texture.loadTex(ren, input.c_str());
+            if (info.tex == nullptr)
+            {
+                std::cout << "IMG_Load Failure even after clean attempt: " << IMG_GetError() << " " << input << "\n";
+                return;
+            }
+            std::cout << "Path str clean success\n";
+        }
 
         m_tilesets.push_back(info);
         tileset = tileset->NextSiblingElement("tileset");
@@ -461,8 +485,12 @@ void TileMap::renderLayerToQueue(Camera& cam, TileLayer& layer)
 void TileMap::renderGround(SDL_Renderer* ren, Camera& cam)
 {
     for (auto& layer : m_layers)
+    {
         if (layer.name == "ground")
             renderLayer(ren, cam, layer);
+        if (layer.name == "higher_ground")
+            renderLayer(ren, cam, layer);
+    }
 }
 
 void TileMap::renderObjects(SDL_Renderer* ren, Camera& cam)

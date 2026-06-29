@@ -28,8 +28,8 @@ SDL_Texture *Texture::loadTex(SDL_Renderer *ren, const char *path)
 
     if (!surf)
     {
-        std::cout << "IMG_Load Failure: " << IMG_GetError() << "\n";
-        exit(1);
+        //std::cout << "IMG_Load Failure: " << IMG_GetError() << "\n";
+        return nullptr;
     }
 
     SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, surf);

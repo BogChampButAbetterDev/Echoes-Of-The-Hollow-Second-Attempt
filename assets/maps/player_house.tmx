@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="12">
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="14">
  <tileset firstgid="1" name="tiles" tilewidth="16" tileheight="16" tilecount="0" columns="40">
   <image source="assets/WorldTiles/Overworld.png" width="640" height="576"/>
  </tileset>
@@ -97,6 +97,9 @@
  </objectgroup>
  <objectgroup id="6" name="spawns">
   <object id="11" name="default" x="230.5" y="149.5">
+   <point/>
+  </object>
+  <object id="13" name="from_outside" x="239.273" y="215.818">
    <point/>
   </object>
  </objectgroup>
