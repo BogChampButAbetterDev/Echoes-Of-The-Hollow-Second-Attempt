@@ -35,8 +35,8 @@ namespace Menus
             MenuItem("Resume", [game]()
             {
                 // only needs to close the menu so I don't need do anything
-                // other then leave closes_menu to true which will handle closing
-                // pasue menu safely automatically
+                // other then set closes_menu to true which will handle closing
+                // pasue menu safely, automatically
             }, /*closes_menu=*/true),
             MenuItem("Quit to Menu", [game]()
             {

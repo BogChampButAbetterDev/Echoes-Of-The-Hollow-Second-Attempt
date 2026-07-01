@@ -207,6 +207,72 @@ void TileMap::loadTMX(const char* path, SDL_Renderer* ren)
                 obj = obj->NextSiblingElement("object");
             }
         }
+        
+        if (name && strcmp(name, "items") == 0)
+        {
+            XMLElement* obj = objGroup->FirstChildElement("object");
+            while (obj)
+            {
+                const char* objName = obj->Attribute("name");
+        
+                float wx = obj->FloatAttribute("x");
+                float wy = obj->FloatAttribute("y");
+        
+                std::string itemId   = "";
+                std::string imgPath  = "";
+        
+                XMLElement* props = obj->FirstChildElement("properties");
+                if (props)
+                {
+                    XMLElement* prop = props->FirstChildElement("property");
+                    while (prop)
+                    {
+                        const char* propName = prop->Attribute("name");
+                        const char* propVal  = prop->Attribute("value");
+                        if (propName && propVal)
+                        {
+                            if (strcmp(propName, "itemId")  == 0) itemId  = propVal;
+                            if (strcmp(propName, "imgPath")  == 0) imgPath = propVal;
+                        }
+                        prop = prop->NextSiblingElement("property");
+                    }
+                }
+        
+                if (!itemId.empty() && !imgPath.empty())
+                {
+                    Texture t;
+                    SDL_Texture* tex = t.loadTex(ren, imgPath.c_str());
+
+                    if (tex == nullptr)
+                    {
+                        std::cout << "IMG_Load Failure for item '" << itemId
+                                   << "': " << IMG_GetError() << " " << imgPath << "\n";
+                        return;
+                    }
+        
+                    float worldX = wx;
+                    float worldY = wy;
+
+                    SDL_Rect rect;
+                    SDL_QueryTexture(tex, nullptr, nullptr, &rect.w, &rect.h);
+                    rect.x = worldX;
+                    rect.y = worldY;
+        
+                    auto item = std::make_unique<WorldItem>(worldX, worldY, itemId, rect, tex);
+                    item->name = objName ? objName : itemId;
+                    m_interactables.push_back(std::move(item));
+        
+                    if (tex)
+                        std::cout << "Item: " << itemId << " at " << worldX << ", " << worldY << "\n";
+                }
+                else
+                {
+                    std::cout << "Warning: item object missing itemId or imgPath — skipped\n";
+                }
+        
+                obj = obj->NextSiblingElement("object");
+            }
+        }
 
         // interactables
         if (name && strcmp(name, "interactables") == 0)
@@ -283,8 +349,8 @@ void TileMap::loadTMX(const char* path, SDL_Renderer* ren)
                 }
                 else if (objType == "door" || objType == "closed_door")
                 {
-                    int closedGid = objType == "closed_door" ? pixelToGid("world", 32, 112) : 0;
-                    int openedGid = objType == "closed_door" ? pixelToGid("world", 48, 112) : 0;
+                    int closedGid = objType == "closed_door" ? pixelToGid("Overworld", 304, 80) : 0;
+                    int openedGid = objType == "closed_door" ? pixelToGid("Overworld", 288, 80) : 0;
                     
                     int x = (int)obj->FloatAttribute("x");
                     int y = (int)obj->FloatAttribute("y");
@@ -320,6 +386,48 @@ void TileMap::loadTMX(const char* path, SDL_Renderer* ren)
                     button->w          = w;
                     button->h          = h;
                     m_interactables.push_back(std::move(button));
+                }
+                else if (objType == "npc")
+                {
+                    auto npc = std::make_unique<NPC>(tx, ty);
+                    npc->name = objName ? objName : "";
+
+                    if (props)
+                    {
+                        for (int i = 0; i < 16; i++)
+                        {
+                            std::string flagKey = "flag_" + std::to_string(i);
+                            std::string textKey = "text_" + std::to_string(i);
+
+                            std::string flagVal = "";
+                            std::string textVal = "";
+                            bool foundText = false;
+
+                            XMLElement* prop = props->FirstChildElement("property");
+                            while (prop)
+                            {
+                                const char* propName = prop->Attribute("name");
+                                const char* propVal  = prop->Attribute("value");
+                                if (propName && propVal)
+                                {
+                                    if (strcmp(propName, flagKey.c_str()) == 0) flagVal = propVal;
+                                    if (strcmp(propName, textKey.c_str()) == 0)
+                                    {
+                                        textVal  = propVal;
+                                        foundText = true;
+                                    }
+                                    if (strcmp(propName, "important") == 0) npc.get()->isImportant = propVal;
+                                }
+                                prop = prop->NextSiblingElement("property");
+                            }
+
+                            if (!foundText) break;
+
+                            npc->lines.push_back({ flagVal, textVal });
+                        }
+                    }
+
+                    m_interactables.push_back(std::move(npc));
                 }
 
                 obj = obj->NextSiblingElement("object");
@@ -505,4 +613,11 @@ void TileMap::renderOverhead(SDL_Renderer* ren, Camera& cam)
     for (auto& layer : m_layers)
         if (layer.name == "overhead")
             renderLayer(ren, cam, layer);
+}
+
+void TileMap::renderItems(Camera &cam)
+{
+    for (auto& item : m_interactables)
+        if (item->type == InteractType::ITEM)
+            static_cast<WorldItem*>(item.get())->queueForRender(cam);
 }

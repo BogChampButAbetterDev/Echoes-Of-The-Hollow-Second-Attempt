@@ -60,7 +60,25 @@ void Game::checkInteraction()
     if (!closest) return;
 
     if (!closest->interact())
-        m_ui->openDialogue(m_ren.renderer, closest->data);
+    {
+        std::string text;
+
+        if (closest->type == InteractType::NPC)
+        {
+            NPC* npc = static_cast<NPC*>(closest);
+            text = npc->getText(m_story);
+            
+            if (npc->isImportant)
+            {
+                if (!npc->name.empty())
+                {
+                    m_story.set("met_" + npc->name);
+                }
+            }
+        }
+        else
+            m_ui->openDialogue(m_ren.renderer, closest->data);
+    }
 }
 
 void Game::checkContact()
@@ -85,10 +103,9 @@ void Game::checkContact()
             if (interactable->type == InteractType::BUTTON)
                 wasPressedBefore = static_cast<Button*>(interactable.get())->pressed;
 
-            interactable->interact();
-
             if (interactable->type == InteractType::BUTTON && !wasPressedBefore)
             {
+                interactable->interact();
                 Button* button = static_cast<Button*>(interactable.get());
                 for (auto& other : m_currentScene->map.getInteractables())
                 {
@@ -100,6 +117,18 @@ void Game::checkContact()
                         break;
                     }
                 }
+            }
+            if (interactable->type == InteractType::ITEM)
+            {
+                WorldItem* item = static_cast<WorldItem*>(interactable.get());
+                if (item->collected) return;
+
+                interactable->interact();
+
+                m_inventory.add(item->id);
+                m_story.set("has_" + item->id);
+
+                m_ui->openDialogue(m_ren.renderer, "You got the " + item->id);
             }
         }
     }
@@ -291,7 +320,7 @@ void Game::mainLoop()
 
             if (!m_ui->isDialogueOpen() && !m_cam.inCutscene && !m_sm.isTransitioning())
             {
-                m_player.update(delta, m_cam, solids);
+                m_player.update(delta, m_cam, solids, m_story);
                 checkContact();
                 checkDoorTransitions();
             }
@@ -314,6 +343,7 @@ void Game::mainLoop()
         {   
             m_currentScene->map.renderGround(m_ren.renderer, m_cam);
             m_currentScene->map.renderObjects(m_ren.renderer, m_cam);
+            m_currentScene->map.renderItems(m_cam);
             m_player.queueForRender(m_cam);
             m_currentScene->spawner.queueForRender(m_cam);
         }

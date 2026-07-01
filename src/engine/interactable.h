@@ -7,7 +7,9 @@ enum class InteractType
     SIGN,
     LOADZONE,
     CHEST,
-    BUTTON
+    BUTTON,
+    NPC,
+    ITEM
 };
 
 struct Interactable

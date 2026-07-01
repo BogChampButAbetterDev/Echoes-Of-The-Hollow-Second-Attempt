@@ -43,6 +43,8 @@ public:
     void renderObjects(SDL_Renderer* ren, Camera& cam);
     void renderOverhead(SDL_Renderer* ren, Camera& cam);
 
+    void renderItems(Camera& cam);
+
     void setTile(const std::string& layerName, int tx, int ty, int gid);
     int getFirstGid(const std::string& tilesetName) const;
     int pixelToGid(const std::string& tilesetName, int pixelX, int pixelY) const;

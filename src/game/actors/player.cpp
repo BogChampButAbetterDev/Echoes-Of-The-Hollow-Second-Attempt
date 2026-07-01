@@ -74,12 +74,14 @@ Player::Player(SDL_Renderer* ren, v2 pos)
     currentAnim = &idleDown;
 }
 
-void Player::update(float delta, Camera& cam, const std::vector<SDL_Rect>& solids)
+void Player::update(float delta, Camera& cam, const std::vector<SDL_Rect>& solids, const StoryState& story)
 {
+    bool has_sword = story.has("has_sword");
+    
     if (!m_attacking)
         move(delta, solids);
 
-    if (input.attack && !m_attacking)
+    if (has_sword && input.attack && !m_attacking)
     {
         m_attacking = true;
         attackUp.reset();   attackDown.reset();

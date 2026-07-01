@@ -9,6 +9,7 @@
 #include "globals/Actor.h"
 #include "engine/animation.h"
 #include "engine/camera.h"
+#include "engine/story_state.h"
 
 enum class DIR_STATES
 {
@@ -59,7 +60,7 @@ public:
     Player& operator=(const Player& other); 
     Player(SDL_Renderer* ren, v2 pos);
 
-    void update(float delta, Camera& cam, const std::vector<SDL_Rect>& solids);
+    void update(float delta, Camera& cam, const std::vector<SDL_Rect>& solids, const StoryState& stat);
     void queueForRender(Camera& cam);
 
     void setPosition(int nx, int ny) {x = nx; y = ny;}

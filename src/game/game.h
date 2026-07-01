@@ -7,9 +7,11 @@
 #include "engine/font.h"
 #include "engine/ui.h"
 #include "engine/ui_cursor.h"
+#include "engine/story_state.h"
 #include "actors/player.h"
 #include "actors/bee.h"
 #include "menus.h"
+#include "inventory_manager.h"
 
 class Game
 {
@@ -42,6 +44,10 @@ private:
     Scene* m_currentScene;
     AllScenes m_allScenes;
     std::unordered_map<std::string, Scene> m_scenes;
+
+    StoryState m_story;
+
+    Inventory m_inventory;
 
     Camera m_cam;
     Player m_player;
