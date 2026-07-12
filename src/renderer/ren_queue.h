@@ -18,6 +18,7 @@ struct RenderRequest
     int x, y, w, h;
     int z;
     bool flipH = false;
+    Uint8 r = 255, g = 255, b = 255; // default no tint for sprites
 };
 
 extern std::vector <RenderRequest> r_queue;
@@ -25,5 +26,5 @@ extern std::vector <RenderRequest> r_queue;
 #ifdef __3DS__
 void submit(C2D_Image img, int x, int y, int w, int h);
 #else
-void submit(SDL_Texture* tex, SDL_Rect src, int x, int y, int w, int h, bool flipH=false);
+void submit(SDL_Texture* tex, SDL_Rect src, int x, int y, int w, int h, bool flipH=false, Uint8 r=255, Uint8 g=255, Uint8 b=255);
 #endif

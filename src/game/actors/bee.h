@@ -82,5 +82,6 @@ private:
     void addFrames(SDL_Renderer* ren);
     void move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBounds, float px, float py);
 
-    void tintSprite();
+    void requestTexTint();
+    Uint8 m_tintR = 255, m_tintG = 255, m_tintB = 255;
 };

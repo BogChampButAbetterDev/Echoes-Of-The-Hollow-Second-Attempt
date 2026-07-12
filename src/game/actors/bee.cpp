@@ -34,7 +34,7 @@ void Bee::update(float delta, const std::vector<SDL_Rect>& solids, float px, flo
     if (m_isRedTimer < 0.0f) m_isRedTimer = 0.0f;
 
     m_src = currentAnim->getCurrentFrame();
-    tintSprite();
+    requestTexTint();
 
     stateMachine(px, py, player);
     move(delta, solids, mapBounds, px, py);
@@ -51,40 +51,42 @@ void Bee::queueForRender(Camera& cam)
        cam.toScrY(y * MAP_RENDER_SCALE), 
        m_src.w * SPRITE_RENDER_SCALE, 
        m_src.h * SPRITE_RENDER_SCALE,
-       flipH);
+       flipH,
+       m_tintR, m_tintG, m_tintB);
 }
 
 void Bee::move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBounds, float px, float py)
 {
     float speed = 20.0f * MAP_RENDER_SCALE;
 
-    if (actionState == ACTION_PATROL)
+    if (m_knockbackTimer > 0.0f)
     {
-        // count down patrol timer, pick a new random direction when it expires
+        dx = m_knockbackX * delta;
+        dy = m_knockbackY * delta;
+
+        m_knockbackTimer -= delta;
+        if (m_knockbackTimer <= 0.0f)
+            stateFlags &= ~STATE_PAIN;
+    }
+    else if (actionState == ACTION_PATROL)
+    {
         m_patrolTimer -= delta;
         if (m_patrolTimer <= 0.0f)
         {
-            // random angle in radians
             float angle = ((float)rand() / RAND_MAX) * 2.0f * M_PI;
             m_patrolDX = std::cos(angle);
             m_patrolDY = std::sin(angle);
-
-            // random duration between 0.5 and 2 seconds
             m_patrolTimer = 0.5f + ((float)rand() / RAND_MAX) * 1.5f;
         }
-
         dx = m_patrolDX * speed * delta;
         dy = m_patrolDY * speed * delta;
     }
     else if (actionState == ACTION_CHASE)
     {
-        // reset patrol so bee picks a fresh direction when it loses the player
         m_patrolTimer = 0.0f;
-
         float diffX = m_targetX - x;
         float diffY = m_targetY - y;
         float dist  = std::sqrt(diffX * diffX + diffY * diffY);
-
         if (dist > 0.0f)
         {
             dx = (diffX / dist) * speed * delta;
@@ -92,75 +94,33 @@ void Bee::move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBou
         }
     }
 
-    if (m_knockbackTimer > 0.0f)
-    {
-        x += m_knockbackX * delta;
-        y += m_knockbackY * delta;
-
-        m_knockbackTimer -= delta;
-
-        if (m_knockbackTimer <= 0.0f)
-        {
-            stateFlags &= ~STATE_PAIN;
-        }
-
-        return;
-    }
-
-    // update facing direction for matchAnimation()
     if (std::abs(dx) >= std::abs(dy))
         stat = (dx > 0) ? DIR_STATE::RIGHT : DIR_STATE::LEFT;
     else
         stat = (dy > 0) ? DIR_STATE::DOWN : DIR_STATE::UP;
 
-    // resolve X
     float oldX = x;
     x += dx;
     SDL_Rect rx = getHitbox();
     for (const SDL_Rect& tile : solids)
-    {
-        if (SDL_HasIntersection(&rx, &tile))
-        {
-            x = oldX;
-            m_patrolDX = -m_patrolDX; // bounce off walls during patrol
-            dx = m_patrolDX * speed * delta; // recompute direction
-            break;
-        }
-    }
+        if (SDL_HasIntersection(&rx, &tile)) { x = oldX; m_patrolDX = -m_patrolDX; break; }
 
-    // resolve Y
     float oldY = y;
     y += dy;
     SDL_Rect ry = getHitbox();
     for (const SDL_Rect& tile : solids)
-    {
-        if (SDL_HasIntersection(&ry, &tile))
-        {
-            y = oldY;
-            m_patrolDY = -m_patrolDY; // bounce off walls during patrol
-            dy = m_patrolDY * speed * delta;
-            break;
-        }
-    }
+        if (SDL_HasIntersection(&ry, &tile)) { y = oldY; m_patrolDY = -m_patrolDY; break; }
 
-    // clamp to map bounds
     float maxX = (mapBounds.w / MAP_RENDER_SCALE) - m_src.w;
     float maxY = (mapBounds.h / MAP_RENDER_SCALE) - m_src.h;
-
     x = std::max(0.0f, std::min(x, maxX));
     y = std::max(0.0f, std::min(y, maxY));
 }
 
-void Bee::tintSprite()
+void Bee::requestTexTint()
 {
-    if (m_isRedTimer != 0.0f)
-    {
-        SDL_SetTextureColorMod(currentAnim->getTexture(), 255, 0, 0);
-    } 
-    else 
-    {
-        SDL_SetTextureColorMod(currentAnim->getTexture(), 255, 255, 255); // no tint 
-    }
+    if (m_isRedTimer != 0.0f) { m_tintR = 255; m_tintG = 0; m_tintB = 0; }
+    else { m_tintR = 255; m_tintG = 255; m_tintB = 255; }
 }
 
 SDL_Rect Bee::getHitbox()
@@ -260,7 +220,7 @@ void Bee::matchAnimation()
     if (stateFlags & STATE_PAIN)
     {
         m_isRedTimer = 0.5f; // sprite is red while invincible
-        tintSprite();
+        requestTexTint();
     }
     else if (stateFlags & STATE_DEATH)
     {
