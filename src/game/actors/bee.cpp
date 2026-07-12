@@ -14,19 +14,33 @@ void Bee::init(SDL_Renderer* ren)
     stat = DIR_STATE::LEFT;
     addFrames(ren);
     currentAnim = &sIdle;
+    m_src = currentAnim->getCurrentFrame();
 }
 
 void Bee::update(float delta, const std::vector<SDL_Rect>& solids, float px, float py, SDL_Rect mapBounds, Player& player)
 {
+    if (stateFlags & STATE_DEATH) 
+    {
+        m_src = currentAnim->getCurrentFrame();
+        matchAnimation();
+        currentAnim->update(delta);
+        return;
+    }
+
     m_iframeTimer -= delta;
     m_isRedTimer -= delta;
     if (m_iframeTimer < 0.0f) m_iframeTimer = 0.0f;
     if (m_isRedTimer < 0.0f) m_isRedTimer = 0.0f;
-    stateMachine(px, py, player); // decide what to do
-    move(delta, solids, mapBounds, px, py); // act
-    matchAnimation(); // animate
+
+    m_src = currentAnim->getCurrentFrame();
+    tintSprite();
+
+    stateMachine(px, py, player);
+    move(delta, solids, mapBounds, px, py);
+
+    m_src = currentAnim->getCurrentFrame();
+    matchAnimation();
     currentAnim->update(delta);
-    m_src = currentAnim->getCurrentFrame(); // set sprite texture for rendering
 }
 
 void Bee::queueForRender(Camera& cam)
@@ -108,6 +122,7 @@ void Bee::move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBou
         {
             x = oldX;
             m_patrolDX = -m_patrolDX; // bounce off walls during patrol
+            dx = m_patrolDX * speed * delta; // recompute direction
             break;
         }
     }
@@ -122,6 +137,7 @@ void Bee::move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBou
         {
             y = oldY;
             m_patrolDY = -m_patrolDY; // bounce off walls during patrol
+            dy = m_patrolDY * speed * delta;
             break;
         }
     }
@@ -142,7 +158,7 @@ void Bee::tintSprite()
     } 
     else 
     {
-        SDL_SetTextureColorMod(currentAnim->getTexture(), 255, 0, 0); // no tint 
+        SDL_SetTextureColorMod(currentAnim->getTexture(), 255, 255, 255); // no tint 
     }
 }
 
@@ -173,7 +189,7 @@ void Bee::onDamage(float amount)
 void Bee::onDeath() 
 {
     stateFlags = STATE_DEATH;
-    actionState = ACTION_IDLE;
+    actionState = ACTION_NONE;
 }
 
 void Bee::stateMachine(float px, float py, Player& player)
@@ -210,7 +226,9 @@ void Bee::matchAnimation()
     Animation* next = nullptr;
     bool nextFlip = false;
 
-    if (actionState == ACTION_PATROL || actionState == ACTION_CHASE)
+    if (actionState & ACTION_NONE) return;
+
+    if (actionState & ACTION_PATROL || actionState & ACTION_CHASE)
     {
         switch (stat)
         {
@@ -220,7 +238,7 @@ void Bee::matchAnimation()
             case DIR_STATE::RIGHT: next = &sWalk; nextFlip = true;  break;
         }
     }
-    else if (actionState == ACTION_IDLE)
+    else if (actionState & ACTION_IDLE)
     {
         switch (stat)
         {
@@ -231,12 +249,12 @@ void Bee::matchAnimation()
         }
     }
 
-    if (stateFlags == STATE_PAIN)
+    if (stateFlags & STATE_PAIN)
     {
         m_isRedTimer = 0.5f; // sprite is red while invincible
         tintSprite();
     }
-    else if (stateFlags == STATE_DEATH)
+    else if (stateFlags & STATE_DEATH)
     {
         switch (stat)
         {

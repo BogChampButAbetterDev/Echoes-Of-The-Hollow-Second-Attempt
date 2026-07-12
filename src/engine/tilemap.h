@@ -56,6 +56,8 @@ public:
 
     const std::vector<EnemySpawnPoint>& getEnemySpawnPoints() const { return m_enemySpawnPoints; }
 
+    std::vector<TileLayer> getLayers() {return m_layers;}
+
     int m_mapWidth, m_mapHeight;
     int m_tileWidth, m_tileHeight;
 

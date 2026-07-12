@@ -10,6 +10,9 @@ struct Door : public Interactable
     std::string toMap;
     std::string toSpawn;
 
+    // flag that opens the door
+    std::string storyFlag;
+
     bool isTransitionDoor() const {return !toMap.empty();}
 
     Door(int tx, int ty, int openedGid, int closedGid)

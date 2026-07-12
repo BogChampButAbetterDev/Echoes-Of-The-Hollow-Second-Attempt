@@ -184,6 +184,8 @@ void TileMap::loadTMX(const char* path, SDL_Renderer* ren)
                                         esp.enemyType = propVal;
                                     if (strcmp(propName, "maxCount") == 0)
                                         esp.maxCount = std::stoi(propVal);
+                                    if (strcmp(propName, "roomId") == 0)
+                                        esp.roomId = propVal;
                                 }
                                 prop = prop->NextSiblingElement("property");
                             }

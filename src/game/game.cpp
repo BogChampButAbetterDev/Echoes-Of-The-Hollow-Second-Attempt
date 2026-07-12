@@ -134,6 +134,29 @@ void Game::checkContact()
     }
 }
 
+void Game::checkFlagDoors()
+{
+    for (auto& interactable : m_currentScene->map.getInteractables())
+    {
+        if (interactable->type != InteractType::LOADZONE) continue;
+
+        Door* door = static_cast<Door*>(interactable.get());
+        if (door->storyFlag.empty())     continue; // not a story door
+        if (door->open)                  continue; // already open
+
+        if (m_story.has(door->storyFlag))
+        {
+            // find the objects layer to swap the tile
+            std::vector<uint32_t>* groundTiles = nullptr;
+            for (auto& layer : m_currentScene->map.getLayers())
+                if (layer.name == "ground" || layer.name == "higher_ground")
+                    groundTiles = &layer.tiles;
+
+            door->setOpen(true, groundTiles, m_currentScene->map.m_mapWidth);
+        }
+    }
+}
+
 void Game::checkDoorTransitions()
 {
     for (auto& interactable : m_currentScene->map.getInteractables())
@@ -203,21 +226,17 @@ void Game::loadScene(const std::string& mapId, const std::string& spawnName)
         m_scenes[mapId].spawner.setFactory(
         [this](const std::string& type, float x, float y) -> std::unique_ptr<AI>
         {
-             
             if (type == "bee")
             {
                 auto b = std::make_unique<Bee>(m_ren.renderer, v2{x, y});
-                 
                 b->init(m_ren.renderer);
-                 
                 return b;
             }
              
             return nullptr;
         });
     }
-
-     
+ 
     m_currentScene = &m_scenes[mapId];
 
     // restore triggered state
@@ -238,15 +257,9 @@ void Game::loadScene(const std::string& mapId, const std::string& spawnName)
     auto it = spawns.find(spawnName);
      
     if (it != spawns.end())
-    {
-         
         m_player.setPosition(it->second.x, it->second.y);
-         
-    }
     else
-    {
         m_player.setPosition(0, 0);
-    }
 
     // update camera for new map bounds
     m_cam = Camera(SCREEN_WIDTH, SCREEN_HEIGHT,
@@ -256,10 +269,10 @@ void Game::loadScene(const std::string& mapId, const std::string& spawnName)
     m_player.input.controller = m_cursor->input.controller;
 
     if (!m_allScenes.getConfig(m_currentScene->id).areaName.empty())
-    {
-        std::cout << "show label\n";
         m_ui->showAreaLabel(m_ren.renderer, m_allScenes.getConfig(m_currentScene->id).areaName);
-    }
+
+    if (m_allScenes.getConfig(m_currentScene->id).onEnter)
+        m_allScenes.getConfig(m_currentScene->id).onEnter(m_story, m_scenes[mapId].spawner);
 }
 
 void Game::mainLoop()
@@ -287,9 +300,7 @@ void Game::mainLoop()
         pollInput(m_ui->hasOpenScreen() ? m_cursor->input : m_player.input, running);
 
         if (m_player.input.start && !m_ui->hasOpenScreen())
-        {
             m_ui->openMenu(Menus::pauseMenu(m_ren.renderer, this));
-        }
 
         if (!running) break;
 
@@ -314,6 +325,9 @@ void Game::mainLoop()
                 m_currentScene->map.m_mapHeight * m_currentScene->map.m_tileHeight * MAP_RENDER_SCALE
             };
 
+            if (m_allScenes.getConfig(m_currentScene->id).onUpdate)
+                m_allScenes.getConfig(m_currentScene->id).onUpdate(m_story, m_currentScene->spawner, solids);
+
             m_cam.update(delta,
                 m_player.getX() * MAP_RENDER_SCALE,
                 m_player.getY() * MAP_RENDER_SCALE);
@@ -323,10 +337,10 @@ void Game::mainLoop()
                 m_player.update(delta, m_cam, solids, m_story);
                 checkContact();
                 checkDoorTransitions();
-            }
-
-            m_currentScene->spawner.update(delta, solids, mapBounds,
+                checkFlagDoors();
+                m_currentScene->spawner.update(delta, solids, mapBounds,
                                     m_player.getX(), m_player.getY(), m_player);
+            }
 
             m_sm.update(delta, *this);
         }
@@ -397,7 +411,7 @@ void Game::quitToMenu()
     m_ui->openMenu(Menus::mainMenuDEBUG(m_ren.renderer, this));
 }
 
-SDL_Window *Game::createWin()
+SDL_Window* Game::createWin()
 {
     SDL_Window* win = SDL_CreateWindow(
         "you wont see this",

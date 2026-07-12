@@ -9,4 +9,5 @@ namespace Menus
 {
     std::unique_ptr<Menu> mainMenuDEBUG(SDL_Renderer* ren, Game* game);
     std::unique_ptr<Menu> pauseMenu(SDL_Renderer* ren, Game* game);
+    std::unique_ptr<Menu> DEBUG_SceneSelect(SDL_Renderer* ren, Game* game);
 }

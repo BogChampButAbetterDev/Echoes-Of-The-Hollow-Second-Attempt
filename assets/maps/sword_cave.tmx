@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="10">
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="11">
  <tileset firstgid="1" name="tileset-world" tilewidth="16" tileheight="16" tilecount="119" columns="7">
   <image source="../ENVIRONMENT/tilesets/tileset-world.png" width="112" height="272"/>
  </tileset>
@@ -23,8 +23,8 @@
 45,45,45,24,24,24,24,24,24,24,24,24,24,24,24,24,24,45,45,45,
 45,45,45,24,24,24,24,24,24,24,24,24,24,24,24,24,24,45,45,45,
 45,45,45,24,24,24,24,24,24,24,24,24,24,24,24,24,24,45,45,45,
-45,45,45,45,45,45,45,45,45,24,24,45,45,45,45,45,45,45,45,45,
-45,45,45,45,45,45,45,45,45,23,23,45,45,45,45,45,45,45,45,45
+45,45,45,45,45,45,45,45,45,24,45,45,45,45,45,45,45,45,45,45,
+45,45,45,45,45,45,45,45,45,52,45,45,45,45,45,45,45,45,45,45
 </data>
  </layer>
  <layer id="2" name="objects" width="20" height="20">
@@ -87,12 +87,20 @@
    <properties>
     <property name="spawn" value="from_sword_cave"/>
     <property name="to" value="castle_town.tmx"/>
-    <property name="type" value="door"/>
+    <property name="type" value="closed_door"/>
    </properties>
   </object>
  </objectgroup>
  <objectgroup id="7" name="spawns">
   <object id="7" name="default" x="156.75" y="277">
+   <point/>
+  </object>
+  <object id="10" name="bee_sp" type="enemy" x="157.25" y="224.5">
+   <properties>
+    <property name="enemyType" value="bee"/>
+    <property name="maxCount" value="5"/>
+    <property name="roomId" value="sword_cave"/>
+   </properties>
    <point/>
   </object>
  </objectgroup>

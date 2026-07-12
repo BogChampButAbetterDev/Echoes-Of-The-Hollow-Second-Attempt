@@ -4,6 +4,7 @@
 
 #include "player.h"
 
+#define ACTION_NONE   0x00
 #define ACTION_IDLE   0x01
 #define ACTION_PATROL 0x02
 #define ACTION_CHASE  0x04
@@ -36,8 +37,6 @@ public:
     void onDeath() override;
 
 private:
-    SDL_Renderer* m_ren;
-
     bool flipH; // true to move right, false to move left
 
     SDL_Rect m_src;
@@ -60,7 +59,6 @@ private:
 
     float m_knockbackX = 0.0f;
     float m_knockbackY = 0.0f;
-    float m_knockbackTimer = 0.0f;
 
     float m_patrolTimer = 0.0f;
     float m_patrolDX    = 0.0f;
@@ -70,11 +68,11 @@ private:
     float m_targetX     = 0.0f; 
     float m_targetY     = 0.0f;
 
+    float m_knockbackTimer = 0.0f;
     float m_iframeTimer = 0.0f;
-
     float m_isRedTimer = 0.0f;
 
-    SDL_Rect getHitbox();
+    SDL_Rect getHitbox() override;
 
     void stateMachine(float px, float py, Player& player);
     void matchAnimation();

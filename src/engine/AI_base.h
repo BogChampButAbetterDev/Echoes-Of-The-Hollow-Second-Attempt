@@ -20,5 +20,7 @@ struct AI
     virtual void onDamage(float amount) {}
     virtual void onDeath() {}
 
+    virtual SDL_Rect getHitbox() = 0;
+
     virtual ~AI() {}
 };

@@ -16,6 +16,10 @@ namespace Menus
             { 
                 game->loadScene("testworld.tmx", "default"); 
             }, true),
+            MenuItem("Scene Selector", [game, ren]()
+            {
+                game->getUI()->openMenu(DEBUG_SceneSelect(ren, game));
+            }, true),
             MenuItem("Nevermind. Get me tf out of here", [game]() 
             { 
                 game->setRunState(false); 
@@ -24,6 +28,37 @@ namespace Menus
         });
 
         menu->setBG(Texture::loadTex(ren, BG_PATH("main_menu.png")));
+        return menu;
+    }
+
+    std::unique_ptr<Menu> DEBUG_SceneSelect(SDL_Renderer* ren, Game* game)
+    {
+        auto menu = std::make_unique<Menu>(game->getUI()->getFont(), std::vector<MenuItem>
+        {
+            MenuItem("SCENE SELECT"),
+            MenuItem("House", [game]()
+            {
+                game->loadScene("player_house.tmx", "default");
+            }, true),
+            MenuItem("Starting area from house", [game]()
+            {
+                game->loadScene("castle_town.tmx", "from_house");
+            }, true),
+            MenuItem("Sword cave", [game]()
+            {
+                game->loadScene("sword_cave.tmx", "default");
+            }, true),
+            MenuItem("Starting area from sword cave", [game]()
+            {
+                game->loadScene("castle_town.tmx", "from_sword_cave");
+            }, true),
+            MenuItem("Back to main menu", [game]()
+            {
+                game->quitToMenu();
+            }, true),
+        });
+
+        menu->setBG(Texture::loadTex(ren, BG_PATH("pause_menu.png")));
         return menu;
     }
 

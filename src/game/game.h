@@ -59,6 +59,7 @@ private:
     void init();
     void checkInteraction();
     void checkContact();
+    void checkFlagDoors(); // doors that can be opened by use of flags rather than buttons
 
     void checkDoorTransitions();
 
