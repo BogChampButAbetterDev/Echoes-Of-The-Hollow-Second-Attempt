@@ -18,16 +18,12 @@ inline SceneConfig swordCaveConfig()
     cfg.onUpdate = [](StoryState& story, EnemySpawner& spawner, const std::vector<SDL_Rect>& solids)
     {   
         if (story.has("has_sword"))
-        {
             if (!story.has("cleared_sword_cave"))
             {
                 spawner.triggerRoomBurst("sword_cave", solids);
                 if (spawner.isRoomCleared("sword_cave"))
-                {
                     story.set("cleared_sword_cave");
-                }
             }
-        }
     };
     return cfg;
 }

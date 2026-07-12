@@ -20,6 +20,9 @@ struct AI
     virtual void onDamage(float amount) {}
     virtual void onDeath() {}
 
+    // initialized with old behavior
+    virtual bool canDeleteEntity() {return health <= 0;}
+
     virtual SDL_Rect getHitbox() = 0;
 
     virtual ~AI() {}

@@ -49,7 +49,7 @@ void EnemySpawner::update(float dt, const std::vector<SDL_Rect>& solids, SDL_Rec
     // check in reverse order
     for (int ei = (int)m_enemies.size() - 1; ei >= 0; ei--)
     {
-        if (m_enemies[ei]->health > 0) continue;
+        if (!m_enemies[ei]->canDeleteEntity()) continue;
 
         // tell the slot it lost an enemy
         for (auto& st : m_state)

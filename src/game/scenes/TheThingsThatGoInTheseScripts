@@ -5,6 +5,9 @@
     - whether an enemy is unique (only one alive at once)
 - basically things related to AI  so I guess the scene name kinda misleading
 - I'll overcomplicate this more later to fix that
+- Latest commit:
+    - added an onEnter and onUpdate which allows me to do a lot 
+      more things I can do in these scenes
 
 allScenes.h
 - Connects a map to a filename

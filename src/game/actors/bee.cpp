@@ -21,8 +21,9 @@ void Bee::update(float delta, const std::vector<SDL_Rect>& solids, float px, flo
 {
     if (stateFlags & STATE_DEATH) 
     {
-        m_src = currentAnim->getCurrentFrame();
+        m_deathTimer -= delta;
         matchAnimation();
+        m_src = currentAnim->getCurrentFrame();
         currentAnim->update(delta);
         return;
     }
@@ -190,6 +191,13 @@ void Bee::onDeath()
 {
     stateFlags = STATE_DEATH;
     actionState = ACTION_NONE;
+    // death animation is 7 frames with each frame lasting 0.07 seconds
+    m_deathTimer = 7 * 0.07f;
+}
+
+bool Bee::canDeleteEntity()
+{
+    return stateFlags & STATE_DEATH && m_deathTimer <= 0.0f;
 }
 
 void Bee::stateMachine(float px, float py, Player& player)

@@ -36,6 +36,8 @@ public:
     void onDamage(float amount) override;
     void onDeath() override;
 
+    bool canDeleteEntity() override;
+
 private:
     bool flipH; // true to move right, false to move left
 
@@ -71,6 +73,7 @@ private:
     float m_knockbackTimer = 0.0f;
     float m_iframeTimer = 0.0f;
     float m_isRedTimer = 0.0f;
+    float m_deathTimer = -1.0f; // lower than zero to prevent this from running on spawn
 
     SDL_Rect getHitbox() override;
 
