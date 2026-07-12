@@ -24,7 +24,7 @@ public:
     // call ts in update loop
     void update(float dt, const std::vector<SDL_Rect>& solids, SDL_Rect mapBounds, float px, float py, Player& player);
 
-    void separateAll();
+    void separateAll(const std::vector<SDL_Rect>& solids);
 
     // queue all live enemies to render queue. call ts in render loop
     void queueForRender(Camera& cam);
@@ -107,6 +107,8 @@ private:
         bool disabled = false;
         int spawnedTotal = 0;
     };
+
+    void tryPush(AI& enemy, float dx, float dy, const std::vector<SDL_Rect>& solids);
 
     void spawnAt(int pointIdx);
 

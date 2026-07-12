@@ -76,11 +76,11 @@
 </data>
  </layer>
  <objectgroup id="5" name="col">
-  <object id="1" x="17.6667" y="143.667" width="29.6667" height="145.333"/>
+  <object id="1" x="2.33337" y="92.3337" width="45" height="216.666"/>
   <object id="2" x="17.6667" y="287.333" width="125.667" height="35.6667"/>
   <object id="3" x="176.25" y="287.5" width="165" height="32.25"/>
-  <object id="4" x="270.667" y="142.667" width="35.3333" height="152"/>
-  <object id="5" x="28" y="100.667" width="262" height="44.6667"/>
+  <object id="4" x="270.667" y="97.0003" width="47" height="214.333"/>
+  <object id="5" x="6" y="1.33367" width="316.667" height="144"/>
  </objectgroup>
  <objectgroup id="6" name="interactables">
   <object id="6" name="exit" x="143.455" y="304" width="32.9091" height="17.6364">
@@ -95,7 +95,7 @@
   <object id="7" name="default" x="156.75" y="277">
    <point/>
   </object>
-  <object id="10" name="bee_sp" type="enemy" x="157.25" y="224.5">
+  <object id="10" name="bee_sp" type="enemy" x="247.25" y="267.5">
    <properties>
     <property name="enemyType" value="bee"/>
     <property name="maxCount" value="5"/>

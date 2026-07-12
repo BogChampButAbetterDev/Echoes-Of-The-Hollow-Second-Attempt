@@ -20,7 +20,7 @@ void EnemySpawner::update(float dt, const std::vector<SDL_Rect>& solids, SDL_Rec
     for (auto& enemy : m_enemies)
         enemy->update(dt, solids, px, py, mapBounds, player);
 
-    separateAll();
+    separateAll(solids );
 
     // tick spawn cooldowns and attempt to spawn
     for (int i = 0; i < (int)m_points.size(); i++)
@@ -76,7 +76,7 @@ void EnemySpawner::update(float dt, const std::vector<SDL_Rect>& solids, SDL_Rec
     }
 }
 
-void EnemySpawner::separateAll()
+void EnemySpawner::separateAll(const std::vector<SDL_Rect>& solids)
 {
     for (size_t i = 0; i < m_enemies.size(); i++)
     {
@@ -92,18 +92,41 @@ void EnemySpawner::separateAll()
             SDL_Rect overlap;
             if (!SDL_IntersectRect(&a, &b, &overlap)) continue;
 
+            float pushX_i = 0, pushY_i = 0, pushX_j = 0, pushY_j = 0;
+
             if (overlap.w < overlap.h)
             {
                 float push = (overlap.w * 0.5f) / MAP_RENDER_SCALE;
-                if (a.x < b.x) { m_enemies[i]->x -= push; m_enemies[j]->x += push; }
-                else            { m_enemies[i]->x += push; m_enemies[j]->x -= push; }
+                if (a.x < b.x) { pushX_i = -push; pushX_j = push; }
+                else            { pushX_i = push;  pushX_j = -push; }
             }
             else
             {
                 float push = (overlap.h * 0.5f) / MAP_RENDER_SCALE;
-                if (a.y < b.y) { m_enemies[i]->y -= push; m_enemies[j]->y += push; }
-                else { m_enemies[i]->y += push; m_enemies[j]->y -= push; }
+                if (a.y < b.y) { pushY_i = -push; pushY_j = push; }
+                else            { pushY_i = push;  pushY_j = -push; }
             }
+
+            tryPush(*m_enemies[i], pushX_i, pushY_i, solids );
+            tryPush(*m_enemies[j], pushX_j, pushY_j, solids);
+        }
+    }
+}
+
+void EnemySpawner::tryPush(AI& enemy, float dx, float dy, const std::vector<SDL_Rect>& solids)
+{
+    float oldX = enemy.x, oldY = enemy.y;
+    enemy.x += dx;
+    enemy.y += dy;
+
+    SDL_Rect r = enemy.getHitbox();
+    for (const SDL_Rect& tile : solids)
+    {
+        if (SDL_HasIntersection(&r, &tile))
+        {
+            enemy.x = oldX;
+            enemy.y = oldY;
+            return; // don't shove this enemy into a wall; leave the overlap for this frame
         }
     }
 }
@@ -174,42 +197,43 @@ bool EnemySpawner::spawnBurstAt(const std::string& roomId, const std::string& ty
     const int maxAttempts = 8;
     float chosenX = cx;
     float chosenY = cy;
+    std::unique_ptr<AI> enemy;
 
     for (int attempt = 0; attempt < maxAttempts; attempt++)
     {
-        // random point in a disc of `radius` around (cx, cy) - unscaled tile-space units
         float angle = ((float)rand() / RAND_MAX) * 2.0f * (float)M_PI;
-        float dist  = std::sqrt((float)rand() / RAND_MAX) * radius; // sqrt for uniform area density
+        float dist  = std::sqrt((float)rand() / RAND_MAX) * radius;
         float tryX  = cx + std::cos(angle) * dist;
         float tryY  = cy + std::sin(angle) * dist;
 
-        SDL_Rect probe =
-        {
-            (int)(tryX * MAP_RENDER_SCALE),
-            (int)(tryY * MAP_RENDER_SCALE),
-            (int)(MAP_RENDER_SCALE),
-            (int)(MAP_RENDER_SCALE)
-        };
+        auto candidate = m_factory(type, tryX, tryY);
+        if (!candidate) return false; // factory refused the type entirely, no point retrying
 
+        SDL_Rect hb = candidate->getHitbox();
         bool blocked = false;
         for (const SDL_Rect& tile : solids)
         {
-            if (SDL_HasIntersection(&probe, &tile)) { blocked = true; break; }
+            if (SDL_HasIntersection(&hb, &tile)) { blocked = true; break; }
         }
 
         if (!blocked)
         {
+            enemy = std::move(candidate);
             chosenX = tryX;
             chosenY = tryY;
             break;
         }
-        // otherwise loop and try another random point; after maxAttempts we
-        // fall back to the last attempted point (or the center if attempt 0 failed)
-        chosenX = tryX;
-        chosenY = tryY;
+
+        // last attempt: keep it anyway rather than failing outright, but log it
+        if (attempt == maxAttempts - 1)
+        {
+            std::cout << "[EnemySpawner] burst spawn couldn't find a clear spot for '" << type << "' near (" << cx << "," << cy << "), spawning anyway\n";
+            enemy = std::move(candidate);
+            chosenX = tryX;
+            chosenY = tryY;
+        }
     }
 
-    auto enemy = m_factory(type, chosenX, chosenY);
     if (!enemy) return false;
 
     m_enemies.push_back(std::move(enemy));

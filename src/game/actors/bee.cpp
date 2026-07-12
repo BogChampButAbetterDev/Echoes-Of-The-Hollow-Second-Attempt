@@ -57,7 +57,7 @@ void Bee::queueForRender(Camera& cam)
 
 void Bee::move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBounds, float px, float py)
 {
-    float speed = 20.0f * MAP_RENDER_SCALE;
+    float speed = 60.0f;
 
     if (m_knockbackTimer > 0.0f)
     {
@@ -99,22 +99,35 @@ void Bee::move(float delta, const std::vector<SDL_Rect>& solids, SDL_Rect mapBou
     else
         stat = (dy > 0) ? DIR_STATE::DOWN : DIR_STATE::UP;
 
-    float oldX = x;
-    x += dx;
-    SDL_Rect rx = getHitbox();
-    for (const SDL_Rect& tile : solids)
-        if (SDL_HasIntersection(&rx, &tile)) { x = oldX; m_patrolDX = -m_patrolDX; break; }
+    const float maxStep = 0.01f; 
 
-    float oldY = y;
-    y += dy;
-    SDL_Rect ry = getHitbox();
-    for (const SDL_Rect& tile : solids)
-        if (SDL_HasIntersection(&ry, &tile)) { y = oldY; m_patrolDY = -m_patrolDY; break; }
+    auto resolveAxis = [&](float& pos, float delta_pos, float& patrolDir)
+    {
+        float remaining = delta_pos;
+        while (remaining != 0.0f)
+        {
+            float step = std::clamp(remaining, -maxStep, maxStep);
+            float old = pos;
+            pos += step;
 
-    float maxX = (mapBounds.w / MAP_RENDER_SCALE) - m_src.w;
-    float maxY = (mapBounds.h / MAP_RENDER_SCALE) - m_src.h;
-    x = std::max(0.0f, std::min(x, maxX));
-    y = std::max(0.0f, std::min(y, maxY));
+            SDL_Rect r = getHitbox();
+            bool blocked = false;
+            for (const SDL_Rect& tile : solids)
+                if (SDL_HasIntersection(&r, &tile)) { blocked = true; break; }
+
+            if (blocked)
+            {
+                pos = old;
+                patrolDir = -patrolDir;
+                break; // stop this axis for this frame, don't keep pushing into the wall
+            }
+
+            remaining -= step;
+        }
+    };
+
+    resolveAxis(x, dx, m_patrolDX);
+    resolveAxis(y, dy, m_patrolDY);
 }
 
 void Bee::requestTexTint()
@@ -168,9 +181,7 @@ void Bee::stateMachine(float px, float py, Player& player)
     {
         SDL_Rect self = getHitbox();
         if (SDL_HasIntersection(&sword, &self))
-        {
             onDamage(player.current_damage_amount);
-        }
     }
 
     float dx = px - x;
@@ -184,9 +195,7 @@ void Bee::stateMachine(float px, float py, Player& player)
         m_targetY = py;
     }
     else
-    {
         actionState = ACTION_PATROL;
-    }
 }
 
 void Bee::matchAnimation()

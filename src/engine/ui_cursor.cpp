@@ -13,9 +13,7 @@ void Cursor::update(float dt)
         }
     }
     if (currentAnim == &click && click.isFinished())
-    {
         currentAnim = &def;
-    } 
 
     currentAnim->update(dt);
     m_rect = currentAnim->getCurrentFrame();
